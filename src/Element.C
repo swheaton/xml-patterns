@@ -139,3 +139,34 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 	attributes.push_back(newAttr);
 	return oldAttribute;
 }
+
+std::string Element_Impl::toString()
+{
+	std::string outString = "<" + this->getTagName();
+
+	for (dom::NamedNodeMap::iterator i = this->getAttributes()->begin();
+			i != this->getAttributes()->end();
+			i++)
+	{
+		outString += (*i)->toString();
+	}
+
+	if (this->getChildNodes()->size() == 0)
+	{
+		outString += "/>";
+	}
+	else
+	{
+		outString += ">";
+
+		for (dom::NodeList::iterator i = this->getChildNodes()->begin();
+			i != this->getChildNodes()->end();
+			i++)
+		{
+			outString += (*i)->toString();
+		}
+
+		outString += "</" + this->getTagName() + ">";
+	}
+	return outString;
+}

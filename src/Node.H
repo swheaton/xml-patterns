@@ -35,6 +35,11 @@ namespace dom
 		virtual Node *			appendChild(Node * newChild)			= 0;
 		virtual bool			hasChildNodes(void)				= 0;
 		virtual const std::string &	getLocalName(void)				= 0;
+		
+		// Give this Node a "strategy" for printing it. The ConcreteStrategies are
+		//	thus the individual implementations like Document_Impl, Attr_Impl, etc.
+		virtual std::string toString() = 0;
+		//virtual void toFormattedString() = 0;
 	};
 
 	class DOMException

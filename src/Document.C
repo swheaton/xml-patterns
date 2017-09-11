@@ -34,3 +34,10 @@ dom::Element * Document_Impl::getDocumentElement()
 
 	return 0;
 }
+
+std::string Document_Impl::toString()
+{
+	std::string outString = "<? xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	outString += this->getDocumentElement()->toString();
+	return outString;
+}

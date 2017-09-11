@@ -101,3 +101,9 @@ dom::Text *		Text_Impl::splitText(int offset)
 		throw dom::DOMException(dom::DOMException::INDEX_SIZE_ERR, "Index larget than Text node's value.");
 	}
 }
+
+std::string Text_Impl::toString()
+{
+	return this->getData();
+}
+

@@ -33,3 +33,9 @@ dom::Element *		Attr_Impl::getOwnerElement(void)
 {
 	return (dom::Element *)Node_Impl::getParentNode();
 }
+
+std::string Attr_Impl::toString()
+{
+	std::string outString = " " + this->getName() + "=\"" + this->getValue() + "\"";
+	return outString;
+}

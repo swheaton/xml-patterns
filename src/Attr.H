@@ -19,6 +19,7 @@ namespace dom
 		virtual const std::string &	getValue(void)				= 0;
 		virtual void			setValue(const std::string & value)	= 0;
 		virtual Element *		getOwnerElement(void)			= 0;
+		virtual std::string toString()							= 0;
 	};
 };
 
@@ -37,6 +38,7 @@ public:
 	virtual const std::string &	getValue(void);
 	virtual void			setValue(const std::string & value);
 	virtual dom::Element *		getOwnerElement(void);
+	virtual std::string toString();
 };
 
 #endif // ATTR_H

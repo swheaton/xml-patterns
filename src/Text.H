@@ -26,6 +26,7 @@ namespace dom
 		virtual void			deleteData(int offset, int count)				= 0;
 		virtual void			replaceData(int offset, int count, const std::string & arg)	= 0;
 		virtual Text *			splitText(int offset)						= 0;
+		virtual std::string toString()										= 0;
 	};
 };
 
@@ -50,6 +51,7 @@ public:
 	virtual void			deleteData(int offset, int count);
 	virtual void			replaceData(int offset, int count, const std::string & arg);
 	virtual dom::Text *		splitText(int offset);
+	virtual std::string toString();
 };
 
 #endif // TEXT_H

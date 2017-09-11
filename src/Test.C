@@ -14,9 +14,9 @@ void testValidator(int argc, char** argv);
 void printUsage(void)
 {
 	printf("Usage:\n");
-	printf("\tTest t [file] ...\n");
-	printf("\tTest s [file1] [file2]\n");
-	printf("\tTest v [file]\n");
+	printf("\tTokenizer:: Test t [file] ...\n");
+	printf("\tSerializer:: Test s [file1] [file2]\n");
+	printf("\tValidator:: Test v [file]\n");
 }
 
 int main(int argc, char** argv)

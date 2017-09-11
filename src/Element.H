@@ -29,6 +29,7 @@ namespace dom
 
 		virtual dom::NamedNodeMap *	getAttributes(void)							= 0;
 		virtual bool			hasAttributes(void)							= 0;
+		virtual std::string toString()										= 0;
 	};
 };
 
@@ -55,6 +56,7 @@ public:
 
 	virtual dom::NamedNodeMap *	getAttributes(void)	{ return &attributes; }
 	virtual bool			hasAttributes(void)	{ return attributes.size() > 0; }
+	virtual std::string toString();
 };
 
 #endif // ELEMENT_H

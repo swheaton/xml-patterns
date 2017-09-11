@@ -5,7 +5,10 @@ CPPFLAGS= -Iboost_1_56_0/boost
 
 all: Test
 
+clean:
+	rm *.o Test
+
 Test: ${OBJS} Test.o
-	${CXX} -Lboost_1_56_0/libs/regex/build/gcc -o Test $^ -lboost_regex-gcc-1_53
-#	${CXX} -L/usr/local/lib -o Test $^ -lboost_regex
+#	${CXX} -Lboost_1_56_0/libs/regex/build/gcc -o Test $^ -lboost_regex-gcc-1_53
+	${CXX} -L/usr/local/lib -o Test $^ -lboost_regex
 #	${CXX} -Lregexpp3/libs/regex/build/gcc -o Test $^ -lboost_regex
