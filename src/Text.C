@@ -104,6 +104,6 @@ dom::Text *		Text_Impl::splitText(int offset)
 
 std::string Text_Impl::toString()
 {
-	return this->getData();
+	return printStrategy->getWhitespaceAddition() + this->getData();
 }
 

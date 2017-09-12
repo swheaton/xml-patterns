@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
 void testTokenizer(int argc, char** argv)
 {
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= DefaultDocumentCreator().createDocument();
 
 	dom::Element *	element	= document->createElement("NewElement");
 	dom::Text *	text	= document->createTextNode("Text Data");
@@ -107,7 +107,7 @@ void testSerializer(int argc, char** argv)
 	//   </element>
 	// </document>
 	//
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= DefaultDocumentCreator().createDocument();
 	dom::Element *	root		= document->createElement("document");
 	document->appendChild(root);
 
@@ -178,106 +178,38 @@ void testValidator(int argc, char** argv)
 	schemaElement->addValidChild("attribute2", true);
 	schemaElement->setCanHaveText(true);
 
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= Document::createValidatedDocument(schemaElement);
 	dom::Element *	root		= 0;
 	dom::Element *	child		= 0;
 	dom::Attr *	attr		= 0;
 
-	if (xmlValidator.canRootElement("document"))
-	{
-		root		= document->createElement("document");
-		document->appendChild(root);
-	}
-	else
-	{
-		printf("Attempted invalid schema operation.");
-		exit(0);
-	}
+	root		= document->createValidatedElement("document", schemaElement);
+	document->appendChild(root);
 
-	if (xmlValidator.canAddElement(root, "element"))
-	{
-		child		= document->createElement("element");
+	child		= document->createValidatedElement("element", schemaElement);
 
-		if (xmlValidator.canAddAttribute(child, "attribute"))
-		{
-			attr		= document->createAttribute("attribute");
-			attr->setValue("attribute value");
-			child->setAttributeNode(attr);
-		}
-		else
-		{
-			printf("Attempted invalid schema operation.");
-			exit(0);
-		}
+	attr		= document->createAttribute("attribute", schemaElement);
+	attr->setValue("attribute value");
+	child->setAttributeNode(attr);
 
-		root->appendChild(child);
-	}
-	else
-	{
-		printf("Attempted invalid schema operation.");
-		exit(0);
-	}
+	root->appendChild(child);
 
-	if (xmlValidator.canAddElement(root, "element"))
-	{
-		child			= document->createElement("element");
-		root->appendChild(child);
-	}
-	else
-	{
-		printf("Attempted invalid schema operation.");
-		exit(0);
-	}
+	child			= document->createValidatedElement("element", schemaElement);
+	root->appendChild(child);
 
-	if (xmlValidator.canAddElement(root, "element"))
-	{
-		child			= document->createElement("element");
+	child			= document->createValidatedElement("element", schemaElement);
 
-		if (xmlValidator.canAddAttribute(child, "attribute"))
-			child->setAttribute("attribute", "attribute value");
-		else
-		{
-			printf("Attempted invalid schema operation.");
-			exit(0);
-		}
+	child->setAttribute("attribute", "attribute value");
 
-		if (xmlValidator.canAddAttribute(child, "attribute2"))
-			child->setAttribute("attribute2", "attribute2 value");
-		else
-		{
-			printf("Attempted invalid schema operation.");
-			exit(0);
-		}
+	child->setAttribute("attribute2", "attribute2 value");
 
-		if (xmlValidator.canAddText(child))
-		{
-			dom::Text *	text		= document->createTextNode("Element Value");
-			child->appendChild(text);
-		}
-		else
-		{
-			printf("Attempted invalid schema operation.");
-			exit(0);
-		}
+	dom::Text *	text		= document->createTextNode("Element Value");
+	child->appendChild(text);
 
-		root->appendChild(child);
-	}
-	else
-	{
-		printf("Attempted invalid schema operation.");
-		exit(0);
-	}
+	root->appendChild(child);
 
-	if (xmlValidator.canAddElement(root, "element"))
-	{
-		child			= document->createElement("element");
-		root->appendChild(child);
-	}
-	else
-	{
-		printf("Attempted invalid schema operation.");
-		exit(0);
-	}
+	child			= document->createValidatedElement("element");
+	root->appendChild(child);
 
 	//
 	// Serialize

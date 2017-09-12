@@ -1,6 +1,7 @@
 #include "Element.H"
 #include "Attr.H"
 #include "Document.H"
+#include "Text.H"
 
 Element_Impl::Element_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ELEMENT_NODE),
   attributes(document)
@@ -142,7 +143,7 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 
 std::string Element_Impl::toString()
 {
-	std::string outString = "<" + this->getTagName();
+	std::string outString = printStrategy->getWhitespaceAddition() + "<" + this->getTagName();
 
 	for (dom::NamedNodeMap::iterator i = this->getAttributes()->begin();
 			i != this->getAttributes()->end();
@@ -157,6 +158,7 @@ std::string Element_Impl::toString()
 	}
 	else
 	{
+		indentationLevel++;
 		outString += ">";
 
 		for (dom::NodeList::iterator i = this->getChildNodes()->begin();
@@ -165,8 +167,74 @@ std::string Element_Impl::toString()
 		{
 			outString += (*i)->toString();
 		}
+		indentationLevel--;
+		outString += printStrategy->getWhitespaceAddition();
 
 		outString += "</" + this->getTagName() + ">";
 	}
 	return outString;
+}
+
+
+ElementDecorator::ElementDecorator(dom::Element * element) :
+	decoratedElement(element) {}
+
+dom::Node * ElementDecorator::appendChild(dom::Element * newChild)
+{
+	return decoratedElement->appendChild(newChild);
+}
+dom::Node * ElementDecorator::appendChild(dom::Text * newChild)
+{
+	return decoratedElement->appendChild(newChild);
+}
+void ElementDecorator::setAttribute(const std::string & name, const std::string & value)
+{
+	decoratedElement->setAttribute(name, value);
+}
+void ElementDecorator::setAttributeNode(dom::Attr * newAttr)
+{
+	decoratedElement->setAttributeNode(newAttr);
+}
+
+ValidationElementDecorator::ValidationElementDecorator(dom::Element * element, XMLValidator* _validator) :
+	ElementDecorator(element),
+	validator(_validator) {}
+	
+dom::DOMException ValidationElementDecorator::makeValidationException()
+{
+	return dom::DOMException(dom::DOMException::HIERARCHY_REQUEST_ERR,
+								"Invalid against given schema");	
+}
+dom::Node * ValidationElementDecorator::appendChild(dom::Element * newChild)
+{
+	if (!validator.canAddElement(newChild))
+	{
+		throw ValidationElementDecorator::makeValidationException();
+	}
+	return ElementDecorator::appendChild(newChild);
+}
+dom::Node * ValidationElementDecorator::appendChild(dom::Text * newChild)
+{
+	if (!validator.canAddText(newChild))
+	{
+		throw ValidationElementDecorator::makeValidationException();
+	}
+	return ElementDecorator::appendChild(newChild);
+}
+void ValidationElementDecorator::setAttribute(const std::string & name, const std::string & value)
+{
+	if (!validator.canAddAttribute())
+	{
+		throw ValidationElementDecorator::makeValidationException();
+	}
+	ElementDecorator::setAttribute(name, value);
+}
+
+void ValidationElementDecorator::setAttributeNode(dom::Attr * newAttr)
+{
+	if (!validator.canAddAttribute())
+	{
+		throw ValidationElementDecorator::makeValidationException();
+	}
+	ElementDecorator::setAttributeNode(newAttr);
 }
