@@ -3,6 +3,7 @@
 
 #include <string>
 #include "NodeList.H"
+#include "WhitespaceStrategy.H"
 
 namespace dom
 {
@@ -17,6 +18,11 @@ namespace dom
 		static const short		TEXT_NODE	= 3;
 
 		virtual ~Node() {}
+
+		//
+		// Serialization Data Extraction Strategy
+		//
+		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)		= 0;
 
 		virtual const std::string &	getNodeName(void)				= 0;
 		virtual const std::string &	getNodeValue(void)				= 0;
@@ -35,12 +41,6 @@ namespace dom
 		virtual Node *			appendChild(Node * newChild)			= 0;
 		virtual bool			hasChildNodes(void)				= 0;
 		virtual const std::string &	getLocalName(void)				= 0;
-		virtual void setPrettyPrintStrategy() = 0;
-		virtual void setMinimalPrintStrategy() = 0;
-		
-		// Give this Node a "strategy" for printing it. The ConcreteStrategies are
-		//	thus the individual implementations like Document_Impl, Attr_Impl, etc.
-		virtual std::string toString() = 0;
 	};
 
 	class DOMException
@@ -63,6 +63,7 @@ namespace dom
 		static const int	NO_MODIFICATION_ALLOWED_ERR	= 4;
 		static const int	INVALID_CHARACTER_ERR		= 5;
 		static const int	HIERARCHY_REQUEST_ERR		= 6;
+		static const int	VALIDATION_ERR			= 7;
 	};
 };
 
@@ -83,6 +84,11 @@ protected:
 public:
 	virtual ~Node_Impl();
 
+	//
+	// Serialization Data Extraction Strategy
+	//
+	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	{}
+
 	virtual const std::string &	getNodeName(void);
 	virtual const std::string &	getNodeValue(void);
 	virtual void			setNodeValue(const std::string & nodeValue);
@@ -100,19 +106,8 @@ public:
 	virtual dom::Node *		appendChild(dom::Node * newChild);
 	virtual bool			hasChildNodes(void);
 	virtual const std::string &	getLocalName(void);
-	virtual void setMinimalPrintStrategy()
-	{
-		printStrategy = new MinimalPrintStrategy;
-	}
-	virtual void setPrettyPrintStrategy()
-	{
-		printStrategy = new PrettyPrintStrategy;
-	}
 
 	virtual void setParent(dom::Node * parent);
-	
-private:
-	PrintStrategy* printStrategy;
 };
 
 #endif // NODE_H

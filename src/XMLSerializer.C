@@ -7,12 +7,14 @@
 
 void XMLSerializer::serializePretty(dom::Node * node)
 {
-	node->setPrettyPrintStrategy();
-	file << node->toString();
+	WhitespaceStrategy *	ws	= new PrettyWhitespaceStrategy;
+	node->serialize(file, ws);
+	delete ws;
 }
 
 void XMLSerializer::serializeMinimal(dom::Node * node)
 {
-	node->setMinimalPrintStrategy();
-	file << node->toString();
+	WhitespaceStrategy *	ws	= new MinimalWhitespaceStrategy;
+	node->serialize(file, ws);
+	delete ws;
 }

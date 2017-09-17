@@ -11,6 +11,13 @@ Text_Impl::~Text_Impl()
 {
 }
 
+void Text_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+{
+	whitespace->prettyIndentation(writer);
+	*writer << getData();
+	whitespace->newLine(writer);
+}
+
 const std::string &	Text_Impl::getName(void)
 {
 	return getNodeName();
@@ -101,9 +108,3 @@ dom::Text *		Text_Impl::splitText(int offset)
 		throw dom::DOMException(dom::DOMException::INDEX_SIZE_ERR, "Index larget than Text node's value.");
 	}
 }
-
-std::string Text_Impl::toString()
-{
-	return printStrategy->getWhitespaceAddition() + this->getData();
-}
-

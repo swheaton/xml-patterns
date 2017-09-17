@@ -3,6 +3,7 @@
 #include "Text.H"
 #include "Attr.H"
 #include "NodeList.H"
+#include "XMLValidator.H"
 
 Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 {
@@ -10,6 +11,13 @@ Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 }
 
 Document_Impl::~Document_Impl() {}
+
+void Document_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+{
+	*writer << "<? xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	whitespace->newLine(writer);
+	getDocumentElement()->serialize(writer, whitespace);
+}
 
 dom::Element *	Document_Impl::createElement(const std::string & tagName)
 {
@@ -26,21 +34,6 @@ dom::Attr *	Document_Impl::createAttribute(const std::string & name)
 	return new Attr_Impl(name, this);
 }
 
-dom::Element *	Document_Impl::createElement(const std::string & tagName)
-{
-	return new new Element_Impl(tagName, this);
-}
-
-dom::Element *	Document_Impl::createValidatedElement(const std::string & tagName, ValidChildren*)
-{
-	return new ValidationElementDecorator(new Element_Impl(tagName, this));
-}
-
-dom::Element *	Document_Impl::createValidatedDocument(ValidChildren*)
-{
-	return new ValidationDocumentDecorator(new Document_Impl);
-}
-
 dom::Element * Document_Impl::getDocumentElement()
 {
 	for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
@@ -50,37 +43,33 @@ dom::Element * Document_Impl::getDocumentElement()
 	return 0;
 }
 
-std::string Document_Impl::toString()
+DocumentValidator::DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator) :
+  Node_Impl("", dom::Node::DOCUMENT_NODE),
+  parent(_parent)
 {
-	std::string outString = "<? xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	outString += this->getDocumentElement()->toString();
-	return outString;
+	schemaElement	= *xmlValidator->findSchemaElement("");
 }
 
-DocumentDecorator::DocumentDecorator(dom::Document * document) :
-	decoratedDocument(document) {}
-
-dom::Node * DocumentDecorator::appendChild(dom::Element * newChild)
+dom::Node * DocumentValidator::insertBefore(dom::Node * newChild, dom::Node * refChild)
 {
-	return decoratedDocument->appendChild(newChild);
+	if (schemaElement == 0 || schemaElement->childIsValid(newChild->getNodeName(), false))
+		return parent->insertBefore(newChild, refChild);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid root node " + newChild->getNodeName() + ".");
 }
 
-dom::DOMException ValidationDocumentDecorator::makeValidationException()
+dom::Node * DocumentValidator::replaceChild(dom::Node * newChild, dom::Node * oldChild)
 {
-	return dom::DOMException(dom::DOMException::HIERARCHY_REQUEST_ERR,
-								"Invalid against given schema");	
+	if (schemaElement == 0 || schemaElement->childIsValid(newChild->getNodeName(), false))
+		return parent->replaceChild(newChild, oldChild);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid root node " + newChild->getNodeName() + ".");
 }
 
-ValidationDocumentDecorator::ValidationDocumentDecorator(dom::Document * document, XMLValidator* _validator) :
-	DocumentDecorator(document),
-	validator(_validator) {}
-dom::Node * ValidationDocumentDecorator::appendChild(dom::Element * newChild)
+dom::Node * DocumentValidator::appendChild(dom::Node * newChild)
 {
-	// Do validation here
-	if (!validator.canRootElement(newChild->getTagName()))
-	{
-		
-		throw ValidationDocumentDecorator::makeValidationException();
-	}
-	return DocumentDecorator::appendChild(newChild);
+	if (schemaElement == 0 || schemaElement->childIsValid(newChild->getNodeName(), false))
+		return parent->appendChild(newChild);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid root node " + newChild->getNodeName() + ".");
 }

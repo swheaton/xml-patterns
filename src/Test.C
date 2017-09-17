@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <fstream>
+#include <ios>
 #include "Attr.H"
 #include "Document.H"
 #include "Element.H"
@@ -14,9 +16,9 @@ void testValidator(int argc, char** argv);
 void printUsage(void)
 {
 	printf("Usage:\n");
-	printf("\tTokenizer:: Test t [file] ...\n");
-	printf("\tSerializer:: Test s [file1] [file2]\n");
-	printf("\tValidator:: Test v [file]\n");
+	printf("\tTest t [file] ...\n");
+	printf("\tTest s [file1] [file2]\n");
+	printf("\tTest v [file]\n");
 }
 
 int main(int argc, char** argv)
@@ -46,7 +48,7 @@ int main(int argc, char** argv)
 
 void testTokenizer(int argc, char** argv)
 {
-	dom::Document *	document	= DefaultDocumentCreator().createDocument();
+	dom::Document *	document	= new Document_Impl;
 
 	dom::Element *	element	= document->createElement("NewElement");
 	dom::Text *	text	= document->createTextNode("Text Data");
@@ -107,7 +109,7 @@ void testSerializer(int argc, char** argv)
 	//   </element>
 	// </document>
 	//
-	dom::Document *	document	= DefaultDocumentCreator().createDocument();
+	dom::Document *	document	= new Document_Impl;
 	dom::Element *	root		= document->createElement("document");
 	document->appendChild(root);
 
@@ -133,10 +135,13 @@ void testSerializer(int argc, char** argv)
 	//
 	// Serialize
 	//
-	XMLSerializer	xmlSerializer(argv[2]);
+	std::fstream *	file	= 0;
+	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
 	xmlSerializer.serializePretty(document);
-	XMLSerializer	xmlSerializer2(argv[3]);
+	delete file;
+	XMLSerializer	xmlSerializer2(file = new std::fstream(argv[3], std::ios_base::out));
 	xmlSerializer2.serializeMinimal(document);
+	delete file;
 
 	// delete Document and tree.
 }
@@ -178,44 +183,36 @@ void testValidator(int argc, char** argv)
 	schemaElement->addValidChild("attribute2", true);
 	schemaElement->setCanHaveText(true);
 
-	dom::Document *	document	= Document::createValidatedDocument(schemaElement);
+	dom::Document *	document	= new DocumentValidator(new Document_Impl, &xmlValidator);
 	dom::Element *	root		= 0;
 	dom::Element *	child		= 0;
 	dom::Attr *	attr		= 0;
 
-	root		= document->createValidatedElement("document", schemaElement);
+	root		= new ElementValidator(document->createElement("document"), &xmlValidator);
 	document->appendChild(root);
-
-	child		= document->createValidatedElement("element", schemaElement);
-
-	attr		= document->createAttribute("attribute", schemaElement);
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
+	attr		= document->createAttribute("attribute");
 	attr->setValue("attribute value");
 	child->setAttributeNode(attr);
-
 	root->appendChild(child);
-
-	child			= document->createValidatedElement("element", schemaElement);
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
 	root->appendChild(child);
-
-	child			= document->createValidatedElement("element", schemaElement);
-
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
 	child->setAttribute("attribute", "attribute value");
-
 	child->setAttribute("attribute2", "attribute2 value");
-
 	dom::Text *	text		= document->createTextNode("Element Value");
 	child->appendChild(text);
-
 	root->appendChild(child);
-
-	child			= document->createValidatedElement("element");
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
 	root->appendChild(child);
 
 	//
 	// Serialize
 	//
-	XMLSerializer	xmlSerializer(argv[2]);
+	std::fstream *	file	= 0;
+	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
 	xmlSerializer.serializePretty(document);
+	delete file;
 
 	// delete Document and tree.
 }

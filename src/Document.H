@@ -2,8 +2,10 @@
 #define DOCUMENT_H
 
 #include <string>
+#include <fstream>
 
 #include "Node.H"
+#include "ValidChildren.H"
 
 namespace dom
 {
@@ -15,13 +17,15 @@ namespace dom
 	class Document : public virtual Node
 	{
 	public:
+		//
+		// Serialization Data Extraction Strategy
+		//
+		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+
 		virtual Element *	createElement(const std::string & tagName)	= 0;
 		virtual Text *		createTextNode(const std::string & data)	= 0;
 		virtual Attr *		createAttribute(const std::string & name)	= 0;
-		virtual Element *	createValidatedElement(const std::string & tagName, ValidChildren*)	= 0;
-		static virtual Element *	createValidatedDocument(ValidChildren*)	= 0;
 		virtual Element *	getDocumentElement()				= 0;
-		virtual std::string toString()							= 0;
 	};
 };
 
@@ -32,52 +36,51 @@ public:
 
 	virtual ~Document_Impl();
 
+	//
+	// Serialization Data Extraction Strategy
+	//
+	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+
 	virtual dom::Element *	createElement(const std::string & tagName);
 	virtual dom::Text *	createTextNode(const std::string & data);
 	virtual dom::Attr *	createAttribute(const std::string & name);
-	virtual dom::Element *	createValidatedElement(const std::string & tagName);
-	static virtual Element *	createValidatedDocument(ValidChildren*);
 	virtual dom::Element *	getDocumentElement();
-	virtual std::string toString();
 };
 
-class DocumentCreator
-{
-	virtual Document* createDocument();
-}
-
-class DefaultDocumentCreator : public DocumentCreator
-{
-	virtual Document* createDocument()
-	{
-		return new Document_Impl;
-	}
-}
-
-// This class is a Decorator for a document, which allows subclasses to add
-//	further functionality on top of Document's appendChild method
 class DocumentDecorator : public virtual dom::Document
 {
-public:
-	DocumentDecorator(dom::Document *);
-	virtual dom::Node * appendChild(dom::Element * newChild);
-	
-private:
-	dom::Document * decoratedDocument;
 };
 
-// This class is a ConcreteDecorator to the DocumentDecorator's AbstractDecorator.
-//	It will decorate the Document's appendChild function to throw DOMException if
-//	adding the node will not be valid
-class ValidationDocumentDecorator : public DocumentDecorator, public virtual Document_Impl
-{
-	ValidationDocumentDecorator(dom::Document *, XMLValidator*);
-	virtual dom::Node * appendChild(dom::Element * newChild);
+class XMLValidator;
 
+class DocumentValidator : public virtual DocumentDecorator, public virtual Node_Impl
+{
 private:
-	XMLValidator* validator;
-	// Makes validation exception with description and type
-	static dom::DOMException makeValidationException();
+	dom::Document *	parent;
+	ValidChildren *	schemaElement;
+public:
+	DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator);
+
+	//
+	// Serialization Data Extraction Strategy
+	//
+	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+	  { parent->serialize(writer, whitespace); }
+
+	//
+	// Undecorated pass-through methods.
+	//
+	virtual dom::Element *	createElement(const std::string & tagName)	{ return parent->createElement(tagName); }
+	virtual dom::Text *	createTextNode(const std::string & data)	{ return parent->createTextNode(data); }
+	virtual dom::Attr *	createAttribute(const std::string & name)	{ return parent->createAttribute(name); }
+	virtual dom::Element *	getDocumentElement()				{ return parent->getDocumentElement(); }
+
+	//
+	// Decorated Methods
+	//
+	virtual dom::Node *	insertBefore(dom::Node * newChild, dom::Node * refChild);
+	virtual dom::Node *	replaceChild(dom::Node * newChild, dom::Node * oldChild);
+	virtual dom::Node *	appendChild(dom::Node * newChild);
 };
 
 #endif // DOCUMENT_H

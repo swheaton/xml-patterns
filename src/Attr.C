@@ -14,6 +14,11 @@ Attr_Impl::Attr_Impl(const std::string & tagName, const std::string & value, dom
 
 Attr_Impl::~Attr_Impl() {}
 
+void Attr_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+{
+	*writer << " " << getName() << "=\"" << getValue() << "\"";
+}
+
 const std::string &	Attr_Impl::getName(void)
 {
 	return Node_Impl::getNodeName();
@@ -32,10 +37,4 @@ void			Attr_Impl::setValue(const std::string & value)
 dom::Element *		Attr_Impl::getOwnerElement(void)
 {
 	return (dom::Element *)Node_Impl::getParentNode();
-}
-
-std::string Attr_Impl::toString()
-{
-	std::string outString = " " + this->getName() + "=\"" + this->getValue() + "\"";
-	return outString;
 }

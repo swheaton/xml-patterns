@@ -1,7 +1,8 @@
 #include "Element.H"
 #include "Attr.H"
-#include "Document.H"
 #include "Text.H"
+#include "Document.H"
+#include "XMLValidator.H"
 
 Element_Impl::Element_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ELEMENT_NODE),
   attributes(document)
@@ -141,100 +142,90 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 	return oldAttribute;
 }
 
-std::string Element_Impl::toString()
+void Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
 {
-	std::string outString = printStrategy->getWhitespaceAddition() + "<" + this->getTagName();
+	whitespace->prettyIndentation(writer);
+	*writer << "<" << getTagName();
 
-	for (dom::NamedNodeMap::iterator i = this->getAttributes()->begin();
-			i != this->getAttributes()->end();
-			i++)
+	int	attrCount	= 0;
+
+	for (dom::NamedNodeMap::iterator i = getAttributes()->begin(); i != getAttributes()->end(); i++)
 	{
-		outString += (*i)->toString();
+		(*i)->serialize(writer, whitespace);
+		attrCount++;
 	}
 
-	if (this->getChildNodes()->size() == 0)
+	if (attrCount > 0)
+		*writer << " ";
+
+	if (getChildNodes()->size() == 0)
 	{
-		outString += "/>";
+		*writer << "/>";
+		whitespace->newLine(writer);
 	}
 	else
 	{
-		indentationLevel++;
-		outString += ">";
+		*writer << ">";
+		whitespace->newLine(writer);
+		whitespace->incrementIndentation();
 
-		for (dom::NodeList::iterator i = this->getChildNodes()->begin();
-			i != this->getChildNodes()->end();
-			i++)
-		{
-			outString += (*i)->toString();
-		}
-		indentationLevel--;
-		outString += printStrategy->getWhitespaceAddition();
+		for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
+			if (dynamic_cast<dom::Element *>(*i) != 0 || dynamic_cast<dom::Text *>(*i) != 0)
+				(*i)->serialize(writer, whitespace);
 
-		outString += "</" + this->getTagName() + ">";
+		whitespace->decrementIndentation();
+		whitespace->prettyIndentation(writer);
+		*writer << "</" << getTagName() + ">";
+		whitespace->newLine(writer);
 	}
-	return outString;
 }
 
-
-ElementDecorator::ElementDecorator(dom::Element * element) :
-	decoratedElement(element) {}
-
-dom::Node * ElementDecorator::appendChild(dom::Element * newChild)
+ElementValidator::ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator) :
+  Node_Impl("", dom::Node::ELEMENT_NODE),
+  parent(_parent)
 {
-	return decoratedElement->appendChild(newChild);
-}
-dom::Node * ElementDecorator::appendChild(dom::Text * newChild)
-{
-	return decoratedElement->appendChild(newChild);
-}
-void ElementDecorator::setAttribute(const std::string & name, const std::string & value)
-{
-	decoratedElement->setAttribute(name, value);
-}
-void ElementDecorator::setAttributeNode(dom::Attr * newAttr)
-{
-	decoratedElement->setAttributeNode(newAttr);
+	schemaElement	= *xmlValidator->findSchemaElement(parent->getTagName());
 }
 
-ValidationElementDecorator::ValidationElementDecorator(dom::Element * element, XMLValidator* _validator) :
-	ElementDecorator(element),
-	validator(_validator) {}
-	
-dom::DOMException ValidationElementDecorator::makeValidationException()
+void ElementValidator::setAttribute(const std::string & name, const std::string & value)
 {
-	return dom::DOMException(dom::DOMException::HIERARCHY_REQUEST_ERR,
-								"Invalid against given schema");	
-}
-dom::Node * ValidationElementDecorator::appendChild(dom::Element * newChild)
-{
-	if (!validator.canAddElement(newChild))
-	{
-		throw ValidationElementDecorator::makeValidationException();
-	}
-	return ElementDecorator::appendChild(newChild);
-}
-dom::Node * ValidationElementDecorator::appendChild(dom::Text * newChild)
-{
-	if (!validator.canAddText(newChild))
-	{
-		throw ValidationElementDecorator::makeValidationException();
-	}
-	return ElementDecorator::appendChild(newChild);
-}
-void ValidationElementDecorator::setAttribute(const std::string & name, const std::string & value)
-{
-	if (!validator.canAddAttribute())
-	{
-		throw ValidationElementDecorator::makeValidationException();
-	}
-	ElementDecorator::setAttribute(name, value);
+	if (schemaElement == 0 || schemaElement->childIsValid(name, true))
+		parent->setAttribute(name, value);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid attribute " + name + ".");
 }
 
-void ValidationElementDecorator::setAttributeNode(dom::Attr * newAttr)
+dom::Attr * ElementValidator::setAttributeNode(dom::Attr * newAttr)
 {
-	if (!validator.canAddAttribute())
-	{
-		throw ValidationElementDecorator::makeValidationException();
-	}
-	ElementDecorator::setAttributeNode(newAttr);
+	if (schemaElement == 0 || schemaElement->childIsValid(newAttr->getName(), true))
+		parent->setAttributeNode(newAttr);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid attribute " + newAttr->getName() + ".");
+}
+
+dom::Node * ElementValidator::insertBefore(dom::Node * newChild, dom::Node * refChild)
+{
+	if (schemaElement == 0 || dynamic_cast<dom::Text *>(newChild) != 0 ||
+	  schemaElement->childIsValid(newChild->getNodeName(), false))
+		return parent->insertBefore(newChild, refChild);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newChild->getNodeName() + ".");
+}
+
+dom::Node * ElementValidator::replaceChild(dom::Node * newChild, dom::Node * oldChild)
+{
+	if (schemaElement == 0 || dynamic_cast<dom::Text *>(newChild) != 0 ||
+	  schemaElement->childIsValid(newChild->getNodeName(), false))
+		return parent->replaceChild(newChild, oldChild);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newChild->getNodeName() + ".");
+}
+
+dom::Node * ElementValidator::appendChild(dom::Node * newChild)
+{
+	if (schemaElement == 0 || dynamic_cast<dom::Text *>(newChild) != 0 ||
+	  schemaElement->childIsValid(newChild->getNodeName(), false))
+		return parent->appendChild(newChild);
+	else
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newChild->getNodeName() + ".");
 }

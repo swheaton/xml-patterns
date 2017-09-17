@@ -14,6 +14,11 @@ namespace dom
 	public:
 		virtual ~Text()	{}
 
+		//
+		// Serialization Data Extraction Strategy
+		//
+		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+
 		virtual const std::string &	getName(void)							= 0;
 		virtual const std::string &	getData(void)							= 0;
 		virtual const std::string &	getValue(void)							= 0;
@@ -26,7 +31,6 @@ namespace dom
 		virtual void			deleteData(int offset, int count)				= 0;
 		virtual void			replaceData(int offset, int count, const std::string & arg)	= 0;
 		virtual Text *			splitText(int offset)						= 0;
-		virtual std::string toString()										= 0;
 	};
 };
 
@@ -38,6 +42,11 @@ public:
 	friend class Document_Impl;
 
 	virtual ~Text_Impl();
+
+	//
+	// Serialization Data Extraction Strategy
+	//
+	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
 
 	virtual const std::string &	getName(void);
 	virtual const std::string &	getData(void);
@@ -51,7 +60,6 @@ public:
 	virtual void			deleteData(int offset, int count);
 	virtual void			replaceData(int offset, int count, const std::string & arg);
 	virtual dom::Text *		splitText(int offset);
-	virtual std::string toString();
 };
 
 #endif // TEXT_H
