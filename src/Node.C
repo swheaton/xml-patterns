@@ -42,22 +42,30 @@ dom::NodeList *		Node_Impl::getChildNodes(void)
 
 dom::Node *		Node_Impl::getFirstChild(void)
 {
-	return *nodes.begin();
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "getFirstChild() not allowed");
+
+	return 0;
 }
 
 dom::Node *		Node_Impl::getLastChild(void)
 {
-	return *(--nodes.end());
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "getLastChild() not allowed");
+
+	return 0;
 }
 
 dom::Node *		Node_Impl::getPreviousSibling(void)
 {
-	return getSibling(-1);
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "getPreviousSibling() not allowed");
+
+	return 0;
 }
 
 dom::Node *		Node_Impl::getNextSibling(void)
 {
-	return getSibling(1);
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "getNextSibling() not allowed");
+
+	return 0;
 }
 
 dom::Document *		Node_Impl::getOwnerDocument(void)
@@ -67,76 +75,30 @@ dom::Document *		Node_Impl::getOwnerDocument(void)
 
 dom::Node *		Node_Impl::insertBefore(dom::Node * newChild, dom::Node * refChild)
 {
-	if (newChild->getOwnerDocument() != getOwnerDocument())
-		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
-
-	if (newChild->getParentNode() != 0)
-		newChild->getParentNode()->removeChild(newChild);
-
-	if (refChild == 0)
-	{
-		nodes.push_back(newChild);
-		(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
-		return newChild;
-	}
-
-	dom::NodeList::iterator	index	= nodes.find(refChild);
-
-	if (index == nodes.end())
-		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Reference Child is not a child of this node.");
-
-	nodes.insert(++index, newChild);
-	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "insertBefore() not allowed");
 
 	return newChild;
 }
 
 dom::Node *		Node_Impl::replaceChild(dom::Node * newChild, dom::Node * oldChild)
 {
-	if (newChild->getOwnerDocument() != getOwnerDocument())
-		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
-
-	if (newChild->getParentNode() != 0)
-		newChild->getParentNode()->removeChild(newChild);
-
-	dom::NodeList::iterator	index	= nodes.find(oldChild);
-
-	if (index == nodes.end())
-		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
-
-	nodes.insert(index, newChild);
-	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
-	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
-	nodes.erase(index);
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "replaceChild() not allowed");
 
 	return oldChild;
 }
 
 dom::Node *		Node_Impl::removeChild(dom::Node * oldChild)
 {
-	dom::NodeList::iterator	index	= nodes.find(oldChild);
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "removeChild() not allowed");
 
-	if (index == nodes.end())
-		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
-
-	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
-	nodes.erase(index);
-
-	return oldChild;
+	return 0;
 }
 
 dom::Node *		Node_Impl::appendChild(dom::Node * newChild)
 {
-	if (newChild->getOwnerDocument() != getOwnerDocument())
-		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
+	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "appendChild() not allowed");
 
-	if (newChild->getParentNode() != 0)
-		newChild->getParentNode()->removeChild(newChild);
-
-	nodes.push_back(newChild);
-	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
-
-	return newChild;
+	return 0;
 }
 
 bool			Node_Impl::hasChildNodes(void)
@@ -152,29 +114,4 @@ const std::string &	Node_Impl::getLocalName(void)
 void Node_Impl::setParent(dom::Node * parent)
 {
 	this->parent	= parent;
-}
-
-dom::Node *		Node_Impl::getSibling(int direction)
-{
-	if (parent == 0)
-		return 0;
-
-	dom::NodeList::iterator	i	= parent->getChildNodes()->find(this);
-
-	if (direction < 0)
-	{
-		if (i == parent->getChildNodes()->begin())
-			return 0;
-		else
-			return *(--i);
-	}
-	else
-	{
-		i++;
-
-		if (i == parent->getChildNodes()->end())
-			return 0;
-		else
-			return *i;
-	}
 }

@@ -73,3 +73,56 @@ dom::Node * DocumentValidator::appendChild(dom::Node * newChild)
 	else
 		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid root node " + newChild->getNodeName() + ".");
 }
+
+// Re-implemented child management functions for Composite pattern
+dom::Node *		Document_Impl::replaceChild(dom::Node * newChild, dom::Node * oldChild)
+{
+	if (newChild->getOwnerDocument() != getOwnerDocument())
+		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
+
+	if (newChild->getParentNode() != 0)
+		newChild->getParentNode()->removeChild(newChild);
+
+	dom::NodeList::iterator	index	= nodes.find(oldChild);
+
+	if (index == nodes.end())
+		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
+
+	nodes.insert(index, newChild);
+	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
+	nodes.erase(index);
+
+	return oldChild;
+}
+
+dom::Node *		Document_Impl::removeChild(dom::Node * oldChild)
+{
+	dom::NodeList::iterator	index	= nodes.find(oldChild);
+
+	if (index == nodes.end())
+		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
+
+	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
+	nodes.erase(index);
+
+	return oldChild;
+}
+
+dom::Node *		Document_Impl::appendChild(dom::Node * newChild)
+{
+	// Already has child, can't have another one
+	if (this->hasChildNodes())
+		throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "Document can't have more than one child");
+	
+	if (newChild->getOwnerDocument() != getOwnerDocument())
+		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
+
+	if (newChild->getParentNode() != 0)
+		newChild->getParentNode()->removeChild(newChild);
+
+	nodes.push_back(newChild);
+	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+
+	return newChild;
+}
