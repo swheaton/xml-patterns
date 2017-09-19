@@ -1,5 +1,5 @@
 OBJS	= Attr.o Document.o Element.o NamedNodeMap.o Node.o Text.o XMLTokenizer.o XMLSerializer.o XMLValidator.o ValidChildren.o
-CPPFLAGS= -Iregexpp3/
+CPPFLAGS= -std=c++11 -Iregexpp3/
 
 all: Test
 

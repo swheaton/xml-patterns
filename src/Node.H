@@ -8,6 +8,8 @@
 namespace dom
 {
 	class Document;
+	class NodeIterator;
+	class NodeIteratorPtr;
 
 	class Node
 	{
@@ -39,8 +41,11 @@ namespace dom
 		virtual Node *			replaceChild(Node * newChild, Node * oldChild)	= 0;
 		virtual Node *			removeChild(Node * oldChild)			= 0;
 		virtual Node *			appendChild(Node * newChild)			= 0;
-		virtual bool			hasChildNodes(void)				= 0;
+		virtual bool			hasChildNodes(void)			= 0;
 		virtual const std::string &	getLocalName(void)				= 0;
+		
+		// Added factory method for ChildIterator
+		virtual NodeIterator* createChildIterator(void) = 0;
 	};
 
 	class DOMException
@@ -65,7 +70,36 @@ namespace dom
 		static const int	HIERARCHY_REQUEST_ERR		= 6;
 		static const int	VALIDATION_ERR			= 7;
 	};
-};
+
+	// This is an AbstractIterator class that can be used to define various
+	//	ConcreteIterators over
+	class NodeIterator
+	{
+	public:
+		virtual void next() = 0;
+		virtual bool isDone() const = 0;
+		virtual Node* currentItem() const = 0;
+	protected:
+		NodeIterator() {}
+	};
+	
+	// IteratorPtr class taken from GoF Iterator pattern for the use of safety
+	//	wrt iterator pointer deletion
+	class NodeIteratorPtr
+	{
+	public:
+		NodeIteratorPtr(NodeIterator* i): _i(i) {}
+		~NodeIteratorPtr() {delete _i;}
+		NodeIterator* operator->() {return _i;}
+		NodeIterator& operator*() {return *_i;}
+		
+	private:
+		NodeIteratorPtr(const NodeIteratorPtr&);
+		NodeIteratorPtr& operator=(const NodeIteratorPtr&);
+		NodeIterator* _i;
+	};
+
+}; // namespace dom
 
 class Node_Impl : public virtual dom::Node
 {
@@ -73,7 +107,7 @@ private:
 	std::string	name;
 	std::string	value;
 	short		nodeType;
-
+	dom::Node *			getSibling(int direction);
 
 protected:
 	dom::Node *	parent;
@@ -108,6 +142,22 @@ public:
 	virtual const std::string &	getLocalName(void);
 
 	virtual void setParent(dom::Node * parent);
+	
+	// Added factory method for ChildIterator
+	virtual dom::NodeIterator* createChildIterator(void);
+};
+
+// This is a ConcreteIterator to NodeIterator, which iterates over all children
+//	following the given one in the tree. Most useful when called on a Document.
+class ChildNodeIterator : public virtual dom::NodeIterator
+{
+public:
+	ChildNodeIterator(dom::Node* node);
+	virtual void next();
+	virtual bool isDone() const;
+	virtual dom::Node* currentItem() const;
+private:
+	dom::Node* currNode;
 };
 
 #endif // NODE_H

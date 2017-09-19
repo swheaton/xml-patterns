@@ -16,8 +16,8 @@ void testValidator(int argc, char** argv);
 void printUsage(void)
 {
 	printf("Usage:\n");
-	printf("\tTest t [outFile] ...\n");
-	printf("\tTest s [file1] [file2]\n");
+	printf("\tTest t [inFile] ...\n");
+	printf("\tTest s [prettyFile] [minFile] [iteratedFile]\n");
 	printf("\tTest v [outFile]\n");
 }
 
@@ -90,7 +90,7 @@ void testTokenizer(int argc, char** argv)
 
 void testSerializer(int argc, char** argv)
 {
-	if (argc < 4)
+	if (argc < 5)
 	{
 		printUsage();
 		exit(0);
@@ -141,6 +141,19 @@ void testSerializer(int argc, char** argv)
 	delete file;
 	XMLSerializer	xmlSerializer2(file = new std::fstream(argv[3], std::ios_base::out));
 	xmlSerializer2.serializeMinimal(document);
+	delete file;
+	
+	// Test iterator by printing out names
+	file = new std::fstream(argv[4], std::ios_base::out);
+
+	dom::NodeIteratorPtr itPtr(document->createChildIterator());
+	for (dom::NodeIterator& it = *itPtr;
+			!it.isDone();
+			it.next())
+	{
+		std::string out = it.currentItem()->getNodeName();
+		*file << out << "\n";
+	}
 	delete file;
 
 	// delete Document and tree.

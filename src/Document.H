@@ -45,7 +45,7 @@ public:
 	virtual dom::Text *	createTextNode(const std::string & data);
 	virtual dom::Attr *	createAttribute(const std::string & name);
 	virtual dom::Element *	getDocumentElement();
-	
+
 	// Re-implemented child management methods for Composite pattern
 	//	Document can only have one child, so only need a subset of the functions
 	virtual dom::Node *		replaceChild(dom::Node * newChild, dom::Node * oldChild);

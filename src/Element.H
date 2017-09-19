@@ -42,7 +42,6 @@ class Element_Impl : public virtual dom::Element, Node_Impl
 {
 private:
 	NamedNodeMap_Impl	attributes;
-	dom::Node *			getSibling(int direction);
 protected:
 	Element_Impl(const std::string & tagName, dom::Document * document);
 public:
@@ -69,10 +68,6 @@ public:
 	virtual bool			hasAttributes(void)	{ return attributes.size() > 0; }
 	
 	// Reimplemented child management functions for Composite pattern
-	virtual dom::Node *		getFirstChild(void);
-	virtual dom::Node *		getLastChild(void);
-	virtual dom::Node *		getPreviousSibling(void);
-	virtual dom::Node *		getNextSibling(void);
 	virtual dom::Node *		insertBefore(dom::Node * newChild, dom::Node * refChild);
 	virtual dom::Node *		replaceChild(dom::Node * newChild, dom::Node * oldChild);
 	virtual dom::Node *		removeChild(dom::Node * oldChild);

@@ -1,0 +1,27 @@
+==Composite==
+I chose to go for transparency over safety, as that was emphasized by the GoF
+as being a main goal of the pattern.  This way, subclasses of Node don't add any new
+functions. But, you can addChild() to a leaf, which is unsafe - GoF recommends
+throwing an exception in this case. In this vein, I replaced the child management
+functions in Node with default implementations that throw an exception if you try
+to add a child to a leaf, for example.  The real implementations were moved down to
+the actual Composite classes, Element and Document. These functions are: replaceChild(),
+removeChild(), and appendChild(). Element has insertBefore() as well, but Document
+does not because it can only have one child. Document's implementations are the same
+as Element, but ensure that it has only one child. For this reason, I did not move
+to consolidate the similar implementation.
+
+==Iterator==
+I created a NodeIterator class, which is an AbstractIterator for Node.  Then, I createad
+ChildNodeIterator, which is a ConcreteIterator that iterates through every node in
+the tree following the first node.  The iterator is created through a call to
+NodeIteratorPtr it = node->createChildIterator().  I imported the IteratorPtr
+concept from the GoF to make the iterator more safe to use.  Normally I might
+avoid pointers or use a C++11 auto_ptr, but I wanted to follow the pattern as laid
+out by the GoF.
+The ChildNodeIterator goes to any children first, then siblings, then back up to
+the parent to continue on. Using recursion somehow or a std::stack might've made
+the logic simpler, but I decided to save space by only storing the currNode pointer.
+Test.C uses the iterator to just print out the names of the elements to a file.
+I like the strategized method of doing the serialization already, so didn't want to
+mess with that.

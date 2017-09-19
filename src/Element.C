@@ -232,26 +232,6 @@ dom::Node * ElementValidator::appendChild(dom::Node * newChild)
 
 
 // Re-implemented child management functions for Composite pattern
-dom::Node *		Element_Impl::getFirstChild(void)
-{
-	return *nodes.begin();
-}
-
-dom::Node *		Element_Impl::getLastChild(void)
-{
-	return *(--nodes.end());
-}
-
-dom::Node *		Element_Impl::getPreviousSibling(void)
-{
-	return getSibling(-1);
-}
-
-dom::Node *		Element_Impl::getNextSibling(void)
-{
-	return getSibling(1);
-}
-
 dom::Node *		Element_Impl::insertBefore(dom::Node * newChild, dom::Node * refChild)
 {
 	if (newChild->getOwnerDocument() != getOwnerDocument())
@@ -324,29 +304,4 @@ dom::Node *		Element_Impl::appendChild(dom::Node * newChild)
 	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
 
 	return newChild;
-}
-
-dom::Node *		Element_Impl::getSibling(int direction)
-{
-	if (parent == 0)
-		return 0;
-
-	dom::NodeList::iterator	i	= parent->getChildNodes()->find(this);
-
-	if (direction < 0)
-	{
-		if (i == parent->getChildNodes()->begin())
-			return 0;
-		else
-			return *(--i);
-	}
-	else
-	{
-		i++;
-
-		if (i == parent->getChildNodes()->end())
-			return 0;
-		else
-			return *i;
-	}
 }
