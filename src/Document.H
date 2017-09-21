@@ -3,6 +3,7 @@
 
 #include <string>
 #include <fstream>
+#include <stack>
 
 #include "Node.H"
 #include "ValidChildren.H"
@@ -13,6 +14,13 @@ namespace dom
 	class Text;
 	class Attr;
 	class NodeList;
+
+	class Iterator
+	{
+	public:
+		virtual bool	hasNext()	= 0;
+		virtual Node *	next()		= 0;
+	};
 
 	class Document : public virtual Node
 	{
@@ -26,6 +34,11 @@ namespace dom
 		virtual Text *		createTextNode(const std::string & data)	= 0;
 		virtual Attr *		createAttribute(const std::string & name)	= 0;
 		virtual Element *	getDocumentElement()				= 0;
+
+		//
+		// Iterator Factory
+		//
+		virtual Iterator *	createIterator(Node * node)			= 0;
 	};
 };
 
@@ -46,11 +59,26 @@ public:
 	virtual dom::Attr *	createAttribute(const std::string & name);
 	virtual dom::Element *	getDocumentElement();
 
-	// Re-implemented child management methods for Composite pattern
-	//	Document can only have one child, so only need a subset of the functions
-	virtual dom::Node *		replaceChild(dom::Node * newChild, dom::Node * oldChild);
-	virtual dom::Node *		removeChild(dom::Node * oldChild);
-	virtual dom::Node *		appendChild(dom::Node * newChild);
+	//
+	// Iterator Factory
+	//
+	dom::Iterator *		createIterator(dom::Node * node);
+};
+
+class DOMIterator : public virtual dom::Iterator
+{
+private:
+	dom::Node *			firstNode;
+	std::stack<dom::NodeList *>	listStack;
+	std::stack<int>			indexStack;
+
+	friend class Document_Impl;
+
+	DOMIterator(dom::Node * startWithNode, Document_Impl * document);
+	dom::Node * elementAt(dom::NodeList * currentList, int currentIndex);
+public:
+	virtual bool		hasNext();
+	virtual dom::Node *	next();
 };
 
 class DocumentDecorator : public virtual dom::Document
@@ -87,6 +115,11 @@ public:
 	virtual dom::Node *	insertBefore(dom::Node * newChild, dom::Node * refChild);
 	virtual dom::Node *	replaceChild(dom::Node * newChild, dom::Node * oldChild);
 	virtual dom::Node *	appendChild(dom::Node * newChild);
+
+	//
+	// Iterator Factory
+	//
+	dom::Iterator *		createIterator(dom::Node * node)		{ return parent->createIterator(node); }
 };
 
 #endif // DOCUMENT_H

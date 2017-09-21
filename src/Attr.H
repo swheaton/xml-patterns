@@ -48,6 +48,14 @@ public:
 	virtual const std::string &	getValue(void);
 	virtual void			setValue(const std::string & value);
 	virtual dom::Element *		getOwnerElement(void);
+
+	//
+	// Overridden functions for conforming to Composite Leaf node behavior.
+	//
+	virtual Node *			insertBefore(Node * newChild, Node * refChild)	{ return 0; }
+	virtual Node *			replaceChild(Node * newChild, Node * oldChild)	{ return 0; }
+	virtual Node *			removeChild(Node * oldChild)			{ return 0; }
+	virtual Node *			appendChild(Node * newChild)			{ return 0; }
 };
 
 #endif // ATTR_H

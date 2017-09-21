@@ -67,30 +67,76 @@ dom::Document *		Node_Impl::getOwnerDocument(void)
 
 dom::Node *		Node_Impl::insertBefore(dom::Node * newChild, dom::Node * refChild)
 {
-	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "insertBefore() not allowed");
+	if (newChild->getOwnerDocument() != getOwnerDocument())
+		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
+
+	if (newChild->getParentNode() != 0)
+		newChild->getParentNode()->removeChild(newChild);
+
+	if (refChild == 0)
+	{
+		nodes.push_back(newChild);
+		(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+		return newChild;
+	}
+
+	dom::NodeList::iterator	index	= nodes.find(refChild);
+
+	if (index == nodes.end())
+		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Reference Child is not a child of this node.");
+
+	nodes.insert(++index, newChild);
+	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
 
 	return newChild;
 }
 
 dom::Node *		Node_Impl::replaceChild(dom::Node * newChild, dom::Node * oldChild)
 {
-	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "replaceChild() not allowed");
+	if (newChild->getOwnerDocument() != getOwnerDocument())
+		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
+
+	if (newChild->getParentNode() != 0)
+		newChild->getParentNode()->removeChild(newChild);
+
+	dom::NodeList::iterator	index	= nodes.find(oldChild);
+
+	if (index == nodes.end())
+		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
+
+	nodes.insert(index, newChild);
+	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
+	nodes.erase(index);
 
 	return oldChild;
 }
 
 dom::Node *		Node_Impl::removeChild(dom::Node * oldChild)
 {
-	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "removeChild() not allowed");
+	dom::NodeList::iterator	index	= nodes.find(oldChild);
 
-	return 0;
+	if (index == nodes.end())
+		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
+
+	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
+	nodes.erase(index);
+
+	return oldChild;
 }
 
 dom::Node *		Node_Impl::appendChild(dom::Node * newChild)
 {
-	throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "appendChild() not allowed");
+	if (newChild->getOwnerDocument() != getOwnerDocument())
+		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
 
-	return 0;
+	if (newChild->getParentNode() != 0)
+		newChild->getParentNode()->removeChild(newChild);
+
+	nodes.push_back(newChild);
+	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+
+	return newChild;
 }
 
 bool			Node_Impl::hasChildNodes(void)
@@ -131,71 +177,4 @@ dom::Node *		Node_Impl::getSibling(int direction)
 		else
 			return *i;
 	}
-}
-
-// ChildNodeIterator implementation follows
-dom::NodeIterator* Node_Impl::createChildIterator()
-{
-	return new ChildNodeIterator(this);
-}
-
-ChildNodeIterator::ChildNodeIterator(dom::Node* node)
-{
-	// We actually want to start iteration at first element after passed-in node
-	currNode = node;
-	this->next();
-}
-void ChildNodeIterator::next()
-{
-	// Already at end, don't seg fault!
-	if (this->currNode == 0)
-	{
-		return;
-	}
-	
-	// Yes, the logic is a bit more complicated than maybe it needs to be, but
-	//	this way I don't need stack storage, just the current Node pointer.
-	dom::Node* nextNode = this->currNode;
-
-	// goUpTree is true if we need to go up the tree at a lower node to see if
-	//	the parents have any siblings
-	bool goUpTree = false, first = true;
-	while (first || goUpTree)
-	{
-		first = false;
-		// Go to children first - but don't go back down to children if we just
-		//	came from there due to goUpTree
-		if (first && this->currNode->hasChildNodes())
-		{
-			this->currNode = nextNode->getFirstChild();
-			goUpTree = false;
-		}
-		// Then, go to next sibling
-		else if (nextNode = nextNode->getNextSibling())
-		{
-			this->currNode = nextNode;
-			goUpTree = false;
-		}
-		// Then, go back up to parent before deciding that we're done.
-		else if (nextNode = nextNode->getParentNode())
-		{
-			goUpTree = true;
-		}
-		// Got all the way here, this must be the end of the line.
-		else
-		{
-			goUpTree = false;
-			this->currNode = nullptr;
-		}
-	}
-}
-
-bool ChildNodeIterator::isDone() const
-{
-	return this->currNode == nullptr;
-}
-
-dom::Node* ChildNodeIterator::currentItem() const
-{
-	return this->currNode;
 }

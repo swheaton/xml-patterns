@@ -43,6 +43,11 @@ dom::Element * Document_Impl::getDocumentElement()
 	return 0;
 }
 
+dom::Iterator * Document_Impl::createIterator(dom::Node * node)
+{
+	return new DOMIterator(node, this);
+}
+
 DocumentValidator::DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::DOCUMENT_NODE),
   parent(_parent)
@@ -74,55 +79,63 @@ dom::Node * DocumentValidator::appendChild(dom::Node * newChild)
 		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid root node " + newChild->getNodeName() + ".");
 }
 
-// Re-implemented child management functions for Composite pattern
-dom::Node *		Document_Impl::replaceChild(dom::Node * newChild, dom::Node * oldChild)
+DOMIterator::DOMIterator(dom::Node * startWithNode, Document_Impl * document) :
+  firstNode(startWithNode == 0 ? (dom::Node * )document->getDocumentElement() : startWithNode)
 {
-	if (newChild->getOwnerDocument() != getOwnerDocument())
-		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
-
-	if (newChild->getParentNode() != 0)
-		newChild->getParentNode()->removeChild(newChild);
-
-	dom::NodeList::iterator	index	= nodes.find(oldChild);
-
-	if (index == nodes.end())
-		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
-
-	nodes.insert(index, newChild);
-	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
-	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
-	nodes.erase(index);
-
-	return oldChild;
+	if (firstNode != 0)
+		for (dom::Node * node = firstNode; node->getChildNodes()->size() >0; node = *node->getChildNodes()->begin())
+		{
+			listStack.push(node->getChildNodes());
+			indexStack.push(0);
+		}
 }
 
-dom::Node *		Document_Impl::removeChild(dom::Node * oldChild)
+dom::Node * DOMIterator::elementAt(dom::NodeList * currentList, int currentIndex)
 {
-	dom::NodeList::iterator	index	= nodes.find(oldChild);
+	int			i;
+	dom::NodeList::iterator	it;
 
-	if (index == nodes.end())
-		throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Old Child is not a child of this node.");
+	for (i = 0, it = currentList->begin(); it != currentList->end() && i < currentIndex; i++, it++);
 
-	(dynamic_cast<Node_Impl *>(*index))->setParent(0);
-	nodes.erase(index);
-
-	return oldChild;
+	return *it;
 }
 
-dom::Node *		Document_Impl::appendChild(dom::Node * newChild)
+bool DOMIterator::hasNext()
 {
-	// Already has child, can't have another one
-	if (this->hasChildNodes())
-		throw dom::DOMException(dom::DOMException::NO_MODIFICATION_ALLOWED_ERR, "Document can't have more than one child");
-	
-	if (newChild->getOwnerDocument() != getOwnerDocument())
-		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "New Child is not a part of this document.");
+	return firstNode != 0;
+}
 
-	if (newChild->getParentNode() != 0)
-		newChild->getParentNode()->removeChild(newChild);
+dom::Node * DOMIterator::next()
+{
+	dom::NodeList *	currentList	= listStack.size() > 0 ? listStack.top() : 0;
 
-	nodes.push_back(newChild);
-	(dynamic_cast<Node_Impl *>(newChild))->setParent(this);
+	if (currentList == 0)
+	{
+		dom::Node *	temp	= firstNode;
+		firstNode		= 0;
+		return temp;
+	}
+	else
+	{
+		int		currentIndex	= indexStack.top();
+		indexStack.pop();
+		dom::Node *	temp		= elementAt(currentList, currentIndex++);
 
-	return newChild;
+		if (currentIndex >= currentList->size())
+			listStack.pop();
+		else
+		{
+			indexStack.push(currentIndex);
+
+			for (dom::Node * node = elementAt(currentList, currentIndex);
+			  node->getChildNodes()->size() > 0;
+			  node = *node->getChildNodes()->begin())
+			{
+				listStack.push(node->getChildNodes());
+				indexStack.push(0);
+			}
+		}
+
+		return temp;
+	}
 }

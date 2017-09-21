@@ -66,12 +66,6 @@ public:
 
 	virtual dom::NamedNodeMap *	getAttributes(void)	{ return &attributes; }
 	virtual bool			hasAttributes(void)	{ return attributes.size() > 0; }
-	
-	// Reimplemented child management functions for Composite pattern
-	virtual dom::Node *		insertBefore(dom::Node * newChild, dom::Node * refChild);
-	virtual dom::Node *		replaceChild(dom::Node * newChild, dom::Node * oldChild);
-	virtual dom::Node *		removeChild(dom::Node * oldChild);
-	virtual dom::Node *		appendChild(dom::Node * newChild);
 };
 
 class ElementDecorator : public virtual dom::Element

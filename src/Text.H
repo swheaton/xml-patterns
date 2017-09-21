@@ -60,6 +60,14 @@ public:
 	virtual void			deleteData(int offset, int count);
 	virtual void			replaceData(int offset, int count, const std::string & arg);
 	virtual dom::Text *		splitText(int offset);
+
+	//
+	// Overridden functions for conforming to Composite Leaf node behavior.
+	//
+	virtual Node *			insertBefore(Node * newChild, Node * refChild)	{ return 0; }
+	virtual Node *			replaceChild(Node * newChild, Node * oldChild)	{ return 0; }
+	virtual Node *			removeChild(Node * oldChild)			{ return 0; }
+	virtual Node *			appendChild(Node * newChild)			{ return 0; }
 };
 
 #endif // TEXT_H
