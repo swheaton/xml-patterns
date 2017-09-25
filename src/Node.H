@@ -20,9 +20,9 @@ namespace dom
 		virtual ~Node() {}
 
 		//
-		// Serialization Data Extraction Strategy
+		// Serialization Data Extraction Strategy with Template Method serialize()
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)		= 0;
+		void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
 
 		virtual const std::string &	getNodeName(void)				= 0;
 		virtual const std::string &	getNodeValue(void)				= 0;
@@ -86,8 +86,16 @@ public:
 
 	//
 	// Serialization Data Extraction Strategy
-	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	{}
+	// 
+	// serialize() function is non-virtual so that subclasses cannot override template method
+	void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	
+	// Hook methods for the template method to use. Two have blank implementations so simple
+	//  Nodes don't have to implement all of them for nothing. But, Nodes must do *something*
+	//  for serialization, so must implement serializeContents() at least.
+	virtual void startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace) {}
+	virtual void closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace) {}
+	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace) = 0;
 
 	virtual const std::string &	getNodeName(void);
 	virtual const std::string &	getNodeValue(void);

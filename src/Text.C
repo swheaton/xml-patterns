@@ -11,10 +11,18 @@ Text_Impl::~Text_Impl()
 {
 }
 
-void Text_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Text_Impl::startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)
 {
 	whitespace->prettyIndentation(writer);
+}
+
+void Text_Impl::serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)
+{
 	*writer << getData();
+}
+
+void Text_Impl::closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+{
 	whitespace->newLine(writer);
 }
 

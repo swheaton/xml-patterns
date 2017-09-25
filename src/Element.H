@@ -21,7 +21,9 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)		= 0;
+		virtual void startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual const std::string &	getAttribute(const std::string & name)					= 0;
 		virtual Attr *			getAttributeNode(const std::string & name)				= 0;
@@ -52,7 +54,9 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace);
 
 	virtual const std::string &	getAttribute(const std::string & name);
 	virtual dom::Attr *		getAttributeNode(const std::string & name);
@@ -89,8 +93,12 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
-	  { parent->serialize(writer, whitespace); }
+	virtual void startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+	  { parent->startSerialize(writer, whitespace); }
+ 	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)
+      { parent->serializeContents(writer, whitespace); }
+ 	virtual void closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+	  { parent->closeSerialize(writer, whitespace); }
 
 	//
 	// Undecorated pass-through methods.

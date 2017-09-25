@@ -1,0 +1,24 @@
+=== Template Method ===
+I chose to implement the Template Method pattern using the new strategized serialization
+technique instead of the original.  Instead of being pure virtual in Node, I made the
+serialize() function be implemented in Node_Impl. serialize() is only implemented
+in that one place, and now serves as the template method.
+
+The invariants of serialization are the order of operations, and iterating through
+children.  Not all Nodes have children, but a call to getChildNodes() for these
+Nodes is harmless because they will return an empty list. So Node's serialize()
+method calls the hooks in the right order, and also calls serialize() on each of
+the child Nodes.
+
+There are three variant functions: startSerialize(), serializeContents(), and
+closeSerialize(). startSerialize() and closeSerialize() are hook methods that
+have a default empty implementation.  Not all Nodes needed so much complexity,
+so these are optional.  serializeContents(), however, is a pure virtual abstract
+method because every Node should be implementing *some* way to be serialized.
+
+I personally prefer the strategized serialize() form, but this way is similar
+except with an inversion of control. If more functionality was shared between the
+different serialization methods, I would prefer the template method more for it.
+
+
+=== Builder Pattern ===

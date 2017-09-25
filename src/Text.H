@@ -17,7 +17,9 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual const std::string &	getName(void)							= 0;
 		virtual const std::string &	getData(void)							= 0;
@@ -46,7 +48,9 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace);
 
 	virtual const std::string &	getName(void);
 	virtual const std::string &	getData(void);

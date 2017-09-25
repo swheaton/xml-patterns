@@ -149,6 +149,20 @@ const std::string &	Node_Impl::getLocalName(void)
 	return name;
 }
 
+// Serialize template method
+void Node_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+{
+  startSerialize(writer, whitespace);
+  serializeContents(writer, whitespace);
+  
+  // Serialize all children nodes
+  for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
+  {
+    (*i)->serialize(writer, whitespace);
+  }
+  closeSerialize(writer, whitespace);
+}
+
 void Node_Impl::setParent(dom::Node * parent)
 {
 	this->parent	= parent;

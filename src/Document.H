@@ -28,7 +28,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual Element *	createElement(const std::string & tagName)	= 0;
 		virtual Text *		createTextNode(const std::string & data)	= 0;
@@ -52,7 +52,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace);
 
 	virtual dom::Element *	createElement(const std::string & tagName);
 	virtual dom::Text *	createTextNode(const std::string & data);
@@ -98,8 +98,8 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
-	  { parent->serialize(writer, whitespace); }
+	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)
+	  { parent->serializeContents(writer, whitespace); }
 
 	//
 	// Undecorated pass-through methods.

@@ -1,0 +1,15 @@
+Reimplement the serialization algorithm or some part of it, either the original or your Strategy, using Template Method, by identifying the variant and invariant parts of the algorithm. 
+Apply Fowler’s refactoring “Form Template Method.”
+
+Implement a Builder using XMLTokenizer to construct a DOM tree. Use Abstract Factory to create the Builder’s object creation component. (I won’t grade on the bugginess of your parser. I’m interested in the Builder.) 
+Follow Kerievsky’s refactoring “Encapsulate Composite with Builder.”
+
+
+
+
+
+=====================
+
+
+
+A little fuzzy on this one right now especially since we’ve already modified the serialization algorithm and further modifications just seem overkill to me at this point.  However, I can see the serialize() function being moved to Node as a template, with the invariant parts being the order of the variant functions, the writer printing out a string, and iterating through any children.  The variant parts would be functions like startSerialize(), getOutputString(), and closeSerialize().
