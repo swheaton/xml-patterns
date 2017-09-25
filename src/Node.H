@@ -22,7 +22,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy with Template Method serialize()
 		//
-		void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace) = 0;
 
 		virtual const std::string &	getNodeName(void)				= 0;
 		virtual const std::string &	getNodeValue(void)				= 0;
@@ -87,8 +87,8 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	// 
-	// serialize() function is non-virtual so that subclasses cannot override template method
-	void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	// serialize() function is final so that subclasses cannot override template method
+	void serialize(std::fstream * writer, WhitespaceStrategy * whitespace) final;
 	
 	// Hook methods for the template method to use. Two have blank implementations so simple
 	//  Nodes don't have to implement all of them for nothing. But, Nodes must do *something*
