@@ -2,7 +2,7 @@
 I chose to implement the Template Method pattern using the new strategized serialization
 technique instead of the original.  Instead of being pure virtual in Node, I made the
 serialize() function be implemented in Node_Impl. serialize() is only implemented
-in that one place, and now serves as the template method.
+in that one place (marked as final), and now serves as the template method.
 
 The invariants of serialization are the order of operations, and iterating through
 children.  Not all Nodes have children, but a call to getChildNodes() for these

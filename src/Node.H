@@ -8,6 +8,9 @@
 namespace dom
 {
 	class Document;
+	class Element;
+	class Attr;
+	class Text;
 
 	class Node
 	{
@@ -64,6 +67,14 @@ namespace dom
 		static const int	INVALID_CHARACTER_ERR		= 5;
 		static const int	HIERARCHY_REQUEST_ERR		= 6;
 		static const int	VALIDATION_ERR			= 7;
+	};
+	
+	class AbstractDOMFactory
+	{
+	public:
+		virtual Element *	createElement(const std::string & tagName)	= 0;
+		virtual Text *		createTextNode(const std::string & data)	= 0;
+		virtual Attr *		createAttribute(const std::string & name)	= 0;
 	};
 };
 

@@ -8,11 +8,13 @@
 #include "XMLTokenizer.H"
 #include "XMLSerializer.H"
 #include "XMLValidator.H"
+#include "XMLBuilder.H"
 
 void testTokenizer(int argc, char** argv);
 void testSerializer(int argc, char** argv);
 void testValidator(int argc, char** argv);
 void testIterator(int argc, char** argv);
+void testBuilder(int argc, char** argv);
 
 void printUsage(void)
 {
@@ -20,6 +22,8 @@ void printUsage(void)
 	printf("\tTest t [file] ...\n");
 	printf("\tTest s [file1] [file2]\n");
 	printf("\tTest v [file]\n");
+	printf("\tTest i [file]\n");
+	printf("\tTest b [infile] [outfile]\n");
 }
 
 int main(int argc, char** argv)
@@ -48,7 +52,31 @@ int main(int argc, char** argv)
 	case 'i':
 		testIterator(argc, argv);
 		break;
+	case 'B':
+	case 'b':
+		testBuilder(argc, argv);
+		break;
 	}
+}
+
+void testBuilder(int argc, char** argv)
+{
+	if (argc < 3)
+	{
+		printUsage();
+		exit(0);
+	}
+	
+	XMLBuilder * builder = new DefaultXMLBuilder();
+	XMLParseDirector parser(builder);
+	dom::Document * domTree = parser.parseFile(argv[1]);
+	
+	// Serialize it back out
+	std::fstream *	file	= 0;
+	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
+	xmlSerializer.serializePretty(domTree);
+	
+	// TODO delete dom
 }
 
 void testTokenizer(int argc, char** argv)
