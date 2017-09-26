@@ -1,3 +1,6 @@
+Apologies for the formatting issues - due to travel circumstances I had to develop
+in two different environments, one of which was not my normal.
+
 === Template Method ===
 I chose to implement the Template Method pattern using the new strategized serialization
 technique instead of the original.  Instead of being pure virtual in Node, I made the
@@ -22,3 +25,37 @@ different serialization methods, I would prefer the template method more for it.
 
 
 === Builder Pattern ===
+For this pattern, I made two new files, XMLBuilder.H and .C. The components are:
+
+-XMLBuilder, which is the AbstractBuilder with default blank implementations. Build
+functions are beginDocument(), addElement(), addAttribute(), and addText(). As
+mentioned in the GoF book, if we are dealing with a DOM tree (like we are), it is
+easier and more useful to pass in an Element pointer to these methods. The functions
+also must then return a pointer to the Node that they create, so the director can
+potentially use them for future calls to the builder.
+
+-DefaultXMLBuilder, which is a concrete builder inheriting from XMLBuilder. It
+implements the build functions by using its abstract factory to create the wanted
+Node, then adding that to the passed-in Element (or Document).
+
+-XMLParseDirector, which is the Director that builds a DOM tree from a file. It uses
+XMLTokenizer to read in the tokens and attempt to recreate the tree by calling the
+builder's functions like addElement. The parse logic could stand for some refactoring,
+but since the focus is on the builder pattern and not the parsing, I did not spend
+a lot of time to make it elegant.
+
+-Abstract Factory. An interface AbstractDOMFactory was created in Node.H for the
+factory methods createElement(), createAttr(), and createText(). Document inherits from
+that interface, meaning all implementations must be abstract factories. This is
+reasonable because the Document interface already declared all of the functions.
+XMLBuilder has a protected AbstractDOMFactory member for use in creating Nodes.
+The Director chooses the factory to use, not the client. This is because
+after the builder is told to beginDocument(), it sets that document as its abstract
+factory to use for every subsequent node creation call. The abstract factory cannot
+just be set in the beginning due to some checks for the creating document being the
+same.
+
+-testBuilder(). A new test in Test.C that acts as the client for the builder pattern.
+It creates the concrete builder, passes that into the director, and lets the director
+do the work in parseFile(). Then the resulting DOM tree can be used! In this case,
+serialize it out to another file.

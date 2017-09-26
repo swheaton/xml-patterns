@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 
 void testBuilder(int argc, char** argv)
 {
-	if (argc < 3)
+	if (argc < 4)
 	{
 		printUsage();
 		exit(0);
@@ -69,12 +69,13 @@ void testBuilder(int argc, char** argv)
 	
 	XMLBuilder * builder = new DefaultXMLBuilder();
 	XMLParseDirector parser(builder);
-	dom::Document * domTree = parser.parseFile(argv[1]);
+	dom::Document * domTree = parser.parseFile(argv[2]);
 	
 	// Serialize it back out
 	std::fstream *	file	= 0;
-	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
+	XMLSerializer	xmlSerializer(file = new std::fstream(argv[3], std::ios_base::out));
 	xmlSerializer.serializePretty(domTree);
+	delete file;
 	
 	// TODO delete dom
 }

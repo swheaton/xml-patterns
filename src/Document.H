@@ -22,7 +22,7 @@ namespace dom
 		virtual Node *	next()		= 0;
 	};
 
-	class Document : public virtual Node
+	class Document : public virtual Node, public virtual AbstractDOMFactory
 	{
 	public:
 		//
@@ -42,7 +42,7 @@ namespace dom
 	};
 };
 
-class Document_Impl : public virtual dom::Document, public virtual dom::AbstractDOMFactory, public virtual Node_Impl
+class Document_Impl : public virtual dom::Document, public virtual Node_Impl
 {
 public:
 	Document_Impl(void);
