@@ -22,13 +22,13 @@ namespace dom
 		virtual Node *	next()		= 0;
 	};
 
-	class Document : public virtual Node, public virtual AbstractDOMFactory
+	class Document : public virtual Node
 	{
 	public:
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual Element *	createElement(const std::string & tagName)	= 0;
 		virtual Text *		createTextNode(const std::string & data)	= 0;
@@ -52,7 +52,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
 
 	virtual dom::Element *	createElement(const std::string & tagName);
 	virtual dom::Text *	createTextNode(const std::string & data);
@@ -98,8 +98,8 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)
-	  { parent->serializeContents(writer, whitespace); }
+	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+	  { parent->serialize(writer, whitespace); }
 
 	//
 	// Undecorated pass-through methods.

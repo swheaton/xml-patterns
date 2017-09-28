@@ -8,13 +8,14 @@
 #include "XMLTokenizer.H"
 #include "XMLSerializer.H"
 #include "XMLValidator.H"
-#include "XMLBuilder.H"
+#include "Builder.H"
+#include "Director.H"
 
 void testTokenizer(int argc, char** argv);
 void testSerializer(int argc, char** argv);
 void testValidator(int argc, char** argv);
 void testIterator(int argc, char** argv);
-void testBuilder(int argc, char** argv);
+void testDirector(int argc, char** argv);
 
 void printUsage(void)
 {
@@ -22,8 +23,8 @@ void printUsage(void)
 	printf("\tTest t [file] ...\n");
 	printf("\tTest s [file1] [file2]\n");
 	printf("\tTest v [file]\n");
-	printf("\tTest i [file]\n");
-	printf("\tTest b [infile] [outfile]\n");
+	printf("\tTest i\n");
+	printf("\tTest d [file1] [file2]\n");
 }
 
 int main(int argc, char** argv)
@@ -52,32 +53,11 @@ int main(int argc, char** argv)
 	case 'i':
 		testIterator(argc, argv);
 		break;
-	case 'B':
-	case 'b':
-		testBuilder(argc, argv);
+	case 'D':
+	case 'd':
+		testDirector(argc, argv);
 		break;
 	}
-}
-
-void testBuilder(int argc, char** argv)
-{
-	if (argc < 4)
-	{
-		printUsage();
-		exit(0);
-	}
-	
-	XMLBuilder * builder = new DefaultXMLBuilder();
-	XMLParseDirector parser(builder);
-	dom::Document * domTree = parser.parseFile(argv[2]);
-	
-	// Serialize it back out
-	std::fstream *	file	= 0;
-	XMLSerializer	xmlSerializer(file = new std::fstream(argv[3], std::ios_base::out));
-	xmlSerializer.serializePretty(domTree);
-	delete file;
-	
-	// TODO delete dom
 }
 
 void testTokenizer(int argc, char** argv)
@@ -302,4 +282,14 @@ void testIterator(int argc, char** argv)
 	delete domIterator;
 
 	// delete Document and tree.
+}
+
+void testDirector(int argc, char** argv)
+{
+	dom::Document *	document	= new Document_Impl;
+	Builder		builder(document);
+	Director	director(argv[2], &builder);
+	std::fstream	file(argv[3], std::ios_base::out);
+	XMLSerializer	xmlSerializer(&file);
+	xmlSerializer.serializePretty(document);
 }

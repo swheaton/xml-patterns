@@ -142,14 +142,11 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 	return oldAttribute;
 }
 
-void Element_Impl::startSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
 {
 	whitespace->prettyIndentation(writer);
 	*writer << "<" << getTagName();
-}
 
-void Element_Impl::serializeContents(std::fstream * writer, WhitespaceStrategy * whitespace)
-{
 	int	attrCount	= 0;
 
 	for (dom::NamedNodeMap::iterator i = getAttributes()->begin(); i != getAttributes()->end(); i++)
@@ -160,17 +157,27 @@ void Element_Impl::serializeContents(std::fstream * writer, WhitespaceStrategy *
 
 	if (attrCount > 0)
 		*writer << " ";
-	*writer << ">";
-	whitespace->newLine(writer);
-	whitespace->incrementIndentation();
-}
 
-void Element_Impl::closeSerialize(std::fstream * writer, WhitespaceStrategy * whitespace)
-{
+	if (getChildNodes()->size() == 0)
+	{
+		*writer << "/>";
+		whitespace->newLine(writer);
+	}
+	else
+	{
+		*writer << ">";
+		whitespace->newLine(writer);
+		whitespace->incrementIndentation();
+
+		for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
+			if (dynamic_cast<dom::Element *>(*i) != 0 || dynamic_cast<dom::Text *>(*i) != 0)
+				(*i)->serialize(writer, whitespace);
+
 		whitespace->decrementIndentation();
 		whitespace->prettyIndentation(writer);
 		*writer << "</" << getTagName() + ">";
 		whitespace->newLine(writer);
+	}
 }
 
 ElementValidator::ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator) :

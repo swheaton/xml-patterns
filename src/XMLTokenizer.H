@@ -1,3 +1,6 @@
+#ifndef XMLTOKENIZER_H
+#define XMLTOKENIZER_H
+
 #include <string>
 #include <fstream>
 #include <ios>
@@ -78,3 +81,5 @@ public:
 	virtual int		getLineCharacter(void)	{ return index; }
 	virtual XMLToken *	getNextToken(void);
 };
+
+#endif // XMLTOKENIZER_H
