@@ -286,10 +286,8 @@ void testIterator(int argc, char** argv)
 
 void testDirector(int argc, char** argv)
 {
-	dom::Document *	document	= new Document_Impl;
-	Builder		builder(document);
-	Director	director(argv[2], &builder);
+	Director	director(argv[2], Builder::getInstance());
 	std::fstream	file(argv[3], std::ios_base::out);
 	XMLSerializer	xmlSerializer(&file);
-	xmlSerializer.serializePretty(document);
+	xmlSerializer.serializePretty(Builder::getInstance()->getDocument());
 }

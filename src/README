@@ -1,0 +1,14 @@
+===== Singleton / Monostate =====
+Either the Builder or Abstract Factory needs to become a Singleton or Monostate.
+Document is currently the Abstract Factory for the Builder, which makes it
+difficult for it to be a Singleton. I don't want to make Document a Singleton,
+and I also don't want to make a separate Abstract Factory, because then the created
+elements lose their ownerDocument information.
+
+So I've made Builder be a Singleton by following the implementation given by the
+GoF and creating a static instance. The ramifications of this are that the Builder
+can only create *one* document across all users of the class. This seems
+inappropriate for a general XML library, but perhaps we know that there must be
+only one DOM tree, and it is built up by all users.
+
+===== Proxy =====

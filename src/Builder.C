@@ -7,6 +7,17 @@
 #include "Attr.H"
 #include "Text.H"
 
+Builder* Builder::_instance = 0;
+
+Builder* Builder::getInstance()
+{
+	if (_instance == 0)
+	{
+		_instance = new Builder(new Document_Impl);
+	}
+	return _instance;
+}
+
 void Builder::addValue(const std::string & text)
 {
 	elementStack.top()->appendChild(static_cast<dom::Node *>(factory->createTextNode(trim(text))));

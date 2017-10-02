@@ -18,10 +18,13 @@ private:
 	std::stack<dom::Element *>	elementStack;
 	dom::Element *			currentElement;
 	dom::Attr *			currentAttr;
+	static Builder * _instance;
 
 	virtual const std::string	trim(const std::string & s) const;
-public:
+protected:
 	Builder(dom::Document * _factory) : factory(_factory), currentElement(0), currentAttr(0) {}
+public:
+	static Builder*		getInstance();
 
 	virtual dom::Document *	getDocument(void)	{ return factory; }	// aka getResult
 
