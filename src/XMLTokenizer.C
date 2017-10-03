@@ -69,6 +69,27 @@ XMLTokenizer::XMLTokenizer(const std::string & filename) :
 {
 }
 
+XMLTokenizer::XMLTokenizer(const std::string & filename, int fileOffset) :
+  file(filename.c_str(), std::ios_base::in),
+  line_number(0),
+  index(0),
+  inside_tag(false),
+  prolog_start(PROLOG_START),
+  prolog_identifier(PROLOG_IDENTIFIER),
+  attribute_value(ATTRIBUTE_VALUE),
+  prolog_end(PROLOG_END),
+  tag_start(TAG_START),
+  element(ELEMENT),
+  attribute(ATTRIBUTE),
+  null_tag_end(NULL_TAG_END),
+  tag_close_start(TAG_CLOSE_START),
+  value(VALUE),
+  tag_end(TAG_END),
+  space_to_eol(SPACE_TO_EOL)
+{
+	file.seekg(fileOffset);
+}
+
 XMLTokenizer::XMLToken *	XMLTokenizer::getNextToken(void)
 {
 	if (line.size() == 0)
@@ -186,4 +207,10 @@ void		XMLTokenizer::update_matchers(boost::RegEx & matcher)
 
 	line	= line.substr(matcher.Length());
 	index	+= matcher.Length();
+}
+
+// Return current offset into file
+int XMLTokenizer::getFileOffset()
+{
+	return file.tellg();
 }

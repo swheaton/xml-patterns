@@ -75,8 +75,10 @@ public:
 	};
 
 	XMLTokenizer(const std::string & filename);
+	XMLTokenizer(const std::string& filename, int fileOffset);
 	~XMLTokenizer() {}
 
+	int getFileOffset(void);
 	virtual int		getLineNumber(void)	{ return line_number; }
 	virtual int		getLineCharacter(void)	{ return index; }
 	virtual XMLToken *	getNextToken(void);

@@ -8,8 +8,8 @@
 #include "XMLTokenizer.H"
 #include "XMLSerializer.H"
 #include "XMLValidator.H"
-#include "Builder.H"
-#include "Director.H"
+#include "XMLBuilder.H"
+#include "XMLParseDirector.H"
 
 void testTokenizer(int argc, char** argv);
 void testSerializer(int argc, char** argv);
@@ -286,8 +286,11 @@ void testIterator(int argc, char** argv)
 
 void testDirector(int argc, char** argv)
 {
-	Director	director(argv[2], Builder::getInstance());
+	XMLParseDirector director;
+	dom::Document * document = director.parseFile(argv[2]);
+	dom::Element * elt = dynamic_cast<dom::Element*>(document->getFirstChild());
+	elt->hasChildNodes();
 	std::fstream	file(argv[3], std::ios_base::out);
 	XMLSerializer	xmlSerializer(&file);
-	xmlSerializer.serializePretty(Builder::getInstance()->getDocument());
+	xmlSerializer.serializePretty(document);
 }
