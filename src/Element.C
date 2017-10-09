@@ -229,3 +229,41 @@ dom::Node * ElementValidator::appendChild(dom::Node * newChild)
 	else
 		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newChild->getNodeName() + ".");
 }
+
+void ElementProxy::realize(void)
+{
+	// Realize by parsing child nodes.
+	realized	= true;
+}
+
+dom::NodeList * ElementProxy::getChildNodes(void)
+{
+	if (!realized)
+		realize();
+
+	return realSubject->getChildNodes();
+}
+
+dom::Node * ElementProxy::getFirstChild(void)
+{
+	if (!realized)
+		realize();
+
+	return realSubject->getFirstChild();
+}
+
+dom::Node * ElementProxy::getLastChild(void)
+{
+	if (!realized)
+		realize();
+
+	return realSubject->getLastChild();
+}
+
+bool ElementProxy::hasChildNodes(void)
+{
+	if (!realized)
+		realize();
+
+	return realSubject->hasChildNodes();
+}
