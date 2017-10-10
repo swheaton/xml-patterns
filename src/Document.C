@@ -5,36 +5,45 @@
 #include "NodeList.H"
 #include "XMLValidator.H"
 
-Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
+dom::Document::Document() : Node("", dom::Node::DOCUMENT_NODE), docImpl(new Document_Impl) {}
+ void dom::Document::serialize(std::fstream * writer, WhitespaceStrategy * whitespace) {docImpl->serialize(writer, whitespace); }
+
+ dom::Element *	dom::Document::createElement(const std::string & tagName) {docImpl->createElement(tagName); }
+ dom::Text *		dom::Document::createTextNode(const std::string & data) {docImpl->createTextNode(data); }
+ dom::Attr *		dom::Document::createAttribute(const std::string & name) {docImpl->createAttribute(name); }
+ dom::Element *	dom::Document::getDocumentElement() {docImpl->getDocumentElement(); }
+ //dom::Iterator *	dom::Document::createIterator(dom::Node * node) {docImpl->createIterator(node); }
+
+dom::Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 {
-	Node_Impl::document	= this;
+	Node_Impl::document	= getOwnerDocument();
 }
 
-Document_Impl::~Document_Impl() {}
+dom::Document_Impl::~Document_Impl() {}
 
-void Document_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void dom::Document_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
 {
 	*writer << "<? xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	whitespace->newLine(writer);
 	getDocumentElement()->serialize(writer, whitespace);
 }
 
-dom::Element *	Document_Impl::createElement(const std::string & tagName)
+dom::Element *	dom::Document_Impl::createElement(const std::string & tagName)
 {
-	return new Element_Impl(tagName, this);
+	return new dom::Element(tagName, getOwnerDocument());
 }
 
-dom::Text *	Document_Impl::createTextNode(const std::string & data)
+dom::Text *	dom::Document_Impl::createTextNode(const std::string & data)
 {
-	return new Text_Impl(data, this);
+	return new dom::Text(data, getOwnerDocument());
 }
 
-dom::Attr *	Document_Impl::createAttribute(const std::string & name)
+dom::Attr *	dom::Document_Impl::createAttribute(const std::string & name)
 {
-	return new Attr_Impl(name, this);
+	return new dom::Attr(name, getOwnerDocument());
 }
 
-dom::Element * Document_Impl::getDocumentElement()
+dom::Element * dom::Document_Impl::getDocumentElement()
 {
 	for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
 		if (dynamic_cast<dom::Element *>(*i.operator->()) != 0)
@@ -43,12 +52,12 @@ dom::Element * Document_Impl::getDocumentElement()
 	return 0;
 }
 
-dom::Iterator * Document_Impl::createIterator(dom::Node * node)
+/*dom::Iterator * dom::Document_Impl::createIterator(dom::Node * node)
 {
 	return new DOMIterator(node, this);
-}
+}*/
 
-DocumentValidator::DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator) :
+/*DocumentValidator::DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::DOCUMENT_NODE),
   parent(_parent)
 {
@@ -77,9 +86,9 @@ dom::Node * DocumentValidator::appendChild(dom::Node * newChild)
 		return parent->appendChild(newChild);
 	else
 		throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid root node " + newChild->getNodeName() + ".");
-}
+}*/
 
-DOMIterator::DOMIterator(dom::Node * startWithNode, Document_Impl * document) :
+/*DOMIterator::DOMIterator(dom::Node * startWithNode, Document_Impl * document) :
   firstNode(startWithNode == 0 ? (dom::Node * )document->getDocumentElement() : startWithNode)
 {
 	if (firstNode != 0)
@@ -138,4 +147,4 @@ dom::Node * DOMIterator::next()
 
 		return temp;
 	}
-}
+}*/

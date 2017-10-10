@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
 void testTokenizer(int argc, char** argv)
 {
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= new dom::Document;
 
 	dom::Element *	element	= document->createElement("NewElement");
 	dom::Text *	text	= document->createTextNode("Text Data");
@@ -123,7 +123,7 @@ void testSerializer(int argc, char** argv)
 	//   </element>
 	// </document>
 	//
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= new dom::Document;
 	dom::Element *	root		= document->createElement("document");
 	document->appendChild(root);
 
@@ -161,7 +161,7 @@ void testSerializer(int argc, char** argv)
 }
 
 void testValidator(int argc, char** argv)
-{
+{/*
 	if (argc < 3)
 	{
 		printUsage();
@@ -227,7 +227,7 @@ void testValidator(int argc, char** argv)
 	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
 	xmlSerializer.serializePretty(document);
 	delete file;
-
+*/
 	// delete Document and tree.
 }
 
@@ -246,7 +246,7 @@ void testIterator(int argc, char** argv)
 	//   </element>
 	// </document>
 	//
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= new dom::Document;
 	dom::Element *	root		= document->createElement("document");
 	document->appendChild(root);
 	printf("< 0x%08lx > (Last and highest node out of iterator)\n", (unsigned long )root);
@@ -275,18 +275,18 @@ void testIterator(int argc, char** argv)
 	root->appendChild(child);
 	printf("  < 0x%08lx > (Fifth node out of iterator)\n", (unsigned long )child);
 
-	printf("\nDepth first iteration:\n");
+	/*printf("\nDepth first iteration:\n");
 	dom::Iterator *	domIterator;
 	for (domIterator = document->createIterator(0); domIterator->hasNext();)
 		printf("node:  0x%08lx\n", (unsigned long )domIterator->next());
-	delete domIterator;
+	delete domIterator;*/
 
 	// delete Document and tree.
 }
 
 void testDirector(int argc, char** argv)
 {
-	dom::Document *	document	= new Document_Impl;
+	dom::Document *	document	= new dom::Document;
 	Builder		builder(document);
 	Director	director(argv[2], &builder);
 	std::fstream	file(argv[3], std::ios_base::out);
