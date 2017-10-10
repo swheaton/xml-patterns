@@ -1,0 +1,40 @@
+==== Idiom - PImpl ====
+I implemented the Pointer-to-Implementation (PImpl) C++ idiom - similar to handle/body
+(https://en.wikibooks.org/wiki/C%2B%2B_Programming/Idioms). The goal of this idiom
+is to separate implementation from interface so that changing the implementation
+doesn't require a recompilation of the interface's users. Node, Element, etc.,
+are no longer interfaces, but instead are classes that contain implementation pointers
+to the _Impl classes. The inheritance made the PImpl idiom a little harder to implement,
+but I had the implementations inheritance parallel the base interface inheritance.
+I removed some of the complexities like Decorator and Proxy, to make the PImpl
+idiom simpler to work with.
+
+==== User Interface ====
+Going through the Experiences pattern language, I would implement the following
+patterns:
+
+-Explorable Interface. Since we're editing XML files, the user may be technical
+and able to use a more advanced interface like conversational text or a selection
+menu. However, explorable interface is the best because we want a visual editor
+for the XML documents, and we also want multiple documents to be edited at the
+same time.
+
+-Multiple Settings. We cannot just have one setting/window, because of the requirement
+to be able to edit multiple documents.
+
+-Garden of Windows. In the vein of simple editors like Notepad or gvim, I will
+forego the Command and Control Center pattern for directly going to Garden of
+Windows.  This is because we can have one window for each document, and no central
+task bar, but rather have a menubar in each window.
+
+-Menubar. Each window in the garden of windows will have a menubar at the top
+that has open, create, and save buttons. Open and create will open a new window prompting for
+file name, and then open a new window with the XML document for editing or viewing.
+
+-Visual Symbols. The buttons will have well-known icons like the floppy disk for
+save and folder for open. This will help users to immediately recognize what the
+button will do when pressed.
+
+-Modeless Feedback Area. There will be a validation box on the side of the window
+that tells the user whether the XML they have input is valid or not against a schema.
+Using this pattern makes it so validation doesn't distract from the user editing the XML.
