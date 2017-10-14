@@ -4,33 +4,17 @@
 #include "Document.H"
 #include "XMLValidator.H"
 
-dom::Element::Element(const std::string & tagName, dom::Document * document) : Node(tagName, dom::Node::ELEMENT_NODE), eltImpl(new Element_Impl(tagName, document)) {}
- void dom::Element::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)		{eltImpl->serialize(writer, whitespace); }
-
- const std::string &	dom::Element::getAttribute(const std::string & name)					{eltImpl->getAttribute(name); }
- dom::Attr *			dom::Element::getAttributeNode(const std::string & name)				{eltImpl->getAttributeNode(name); }
- dom::NodeList *		dom::Element::getElementsByTagName(const std::string & tagName)			{eltImpl->getElementsByTagName(tagName); }
- const std::string &	dom::Element::getTagName(void)							{eltImpl->getTagName(); }
- bool			dom::Element::hasAttribute(const std::string & name)					{eltImpl->hasAttribute(name); }
- void			dom::Element::removeAttribute(const std::string & name)				{eltImpl->removeAttribute(name); }
- dom::Attr *			dom::Element::removeAttributeNode(dom::Attr * oldAttr)					{eltImpl->removeAttributeNode(oldAttr); }
- void			dom::Element::setAttribute(const std::string & name, const std::string & value)	{eltImpl->setAttribute(name, value); }
- dom::Attr *			dom::Element::setAttributeNode(dom::Attr * newAttr)					{eltImpl->setAttributeNode(newAttr); }
-
- dom::NamedNodeMap *	dom::Element::getAttributes(void)							{eltImpl->getAttributes(); }
- bool			dom::Element::hasAttributes(void)							{eltImpl->hasAttributes(); }
-
-dom::Element_Impl::Element_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ELEMENT_NODE),
+Element_Impl::Element_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ELEMENT_NODE),
   attributes(document)
 {
-	dom::Node_Impl::document	= document;
+	Node_Impl::document	= document;
 }
 
-dom::Element_Impl::~Element_Impl()
+Element_Impl::~Element_Impl()
 {
 }
 
-const std::string &	dom::Element_Impl::getAttribute(const std::string & name)
+const std::string &	Element_Impl::getAttribute(const std::string & name)
 {
 	for (dom::NodeList::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
@@ -44,7 +28,7 @@ const std::string &	dom::Element_Impl::getAttribute(const std::string & name)
 	return empty_string;
 }
 
-dom::Attr *		dom::Element_Impl::getAttributeNode(const std::string & name)
+dom::Attr *		Element_Impl::getAttributeNode(const std::string & name)
 {
 	for (dom::NodeList::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
@@ -57,7 +41,7 @@ dom::Attr *		dom::Element_Impl::getAttributeNode(const std::string & name)
 	return 0;
 }
 
-dom::NodeList *		dom::Element_Impl::getElementsByTagName(const std::string & tagName)
+dom::NodeList *		Element_Impl::getElementsByTagName(const std::string & tagName)
 {
 	dom::NodeList *	nodeList	= new dom::NodeList();
 
@@ -72,12 +56,12 @@ dom::NodeList *		dom::Element_Impl::getElementsByTagName(const std::string & tag
 	return nodeList;
 }
 
-const std::string &	dom::Element_Impl::getTagName(void)
+const std::string &	Element_Impl::getTagName(void)
 {
 	return getNodeName();
 }
 
-bool			dom::Element_Impl::hasAttribute(const std::string & name)
+bool			Element_Impl::hasAttribute(const std::string & name)
 {
 	for (dom::NodeList::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
@@ -90,7 +74,7 @@ bool			dom::Element_Impl::hasAttribute(const std::string & name)
 	return false;
 }
 
-void			dom::Element_Impl::removeAttribute(const std::string & name)
+void			Element_Impl::removeAttribute(const std::string & name)
 {
 	for (dom::NodeList::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
@@ -104,7 +88,7 @@ void			dom::Element_Impl::removeAttribute(const std::string & name)
 	}
 }
 
-dom::Attr *		dom::Element_Impl::removeAttributeNode(dom::Attr * oldAttr)
+dom::Attr *		Element_Impl::removeAttributeNode(dom::Attr * oldAttr)
 {
 	for (dom::NodeList::iterator i = attributes.begin(); i != attributes.end(); i++)
 		if (*i.operator->() == oldAttr)
@@ -117,7 +101,7 @@ dom::Attr *		dom::Element_Impl::removeAttributeNode(dom::Attr * oldAttr)
 	throw dom::DOMException(dom::DOMException::NOT_FOUND_ERR, "Attribute not found.");
 }
 
-void			dom::Element_Impl::setAttribute(const std::string & name, const std::string & value)
+void			Element_Impl::setAttribute(const std::string & name, const std::string & value)
 {
 	for (dom::NodeList::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
@@ -131,11 +115,11 @@ void			dom::Element_Impl::setAttribute(const std::string & name, const std::stri
 	}
 
 	dom::Attr *	attribute;
-	attributes.push_back(attribute = new Attr(name, value, getOwnerDocument()));
-	dynamic_cast<Node_Impl *>(dynamic_cast<Node *>(attribute))->setParent(getParentNode());
+	attributes.push_back(attribute = new Attr_Impl(name, value, dynamic_cast<Document_Impl *>(getOwnerDocument())));
+	dynamic_cast<Node_Impl *>(dynamic_cast<Node *>(attribute))->setParent(this);
 }
 
-dom::Attr *		dom::Element_Impl::setAttributeNode(dom::Attr * newAttr)
+dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 {
 	if (newAttr->getOwnerDocument() != getOwnerDocument())
 		throw dom::DOMException(dom::DOMException::WRONG_DOCUMENT_ERR, "Attribute not created by this document.");
@@ -153,12 +137,12 @@ dom::Attr *		dom::Element_Impl::setAttributeNode(dom::Attr * newAttr)
 			break;
 		}
 
-	dynamic_cast<Node_Impl *>(dynamic_cast<Node *>(newAttr))->setParent(getParentNode());
+	dynamic_cast<Node_Impl *>(dynamic_cast<Node *>(newAttr))->setParent(this);
 	attributes.push_back(newAttr);
 	return oldAttribute;
 }
 
-void dom::Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
 {
 	whitespace->prettyIndentation(writer);
 	*writer << "<" << getTagName();
@@ -196,7 +180,7 @@ void dom::Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * wh
 	}
 }
 
-/*ElementValidator::ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator) :
+ElementValidator::ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::ELEMENT_NODE),
   parent(_parent)
 {
@@ -283,4 +267,3 @@ bool ElementProxy::hasChildNodes(void)
 
 	return realSubject->hasChildNodes();
 }
-*/
