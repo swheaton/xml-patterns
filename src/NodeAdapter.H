@@ -2,7 +2,9 @@
 #define DOM_NODE_ADAPTER_H
 
 #include "../xerces/xercesc/dom/DOMNode.hpp"
+#include "../xerces/xercesc/dom/DOMDocument.hpp"
 #include "Node.H"
+#include "Document.H"
 
 namespace dom
 {
@@ -48,7 +50,10 @@ namespace dom
         {
             return dynamic_cast<XERCES::DOMNode*>(adaptee->getParentNode());
         }
-        virtual XERCES::DOMNodeList    *getChildNodes() const;
+        virtual XERCES::DOMNodeList    *getChildNodes() const
+        {
+            // DO nothing right now until DOMNodeList is adapted to our NodeList
+        }
         virtual XERCES::DOMNode        *getFirstChild() const
         {
             return dynamic_cast<XERCES::DOMNode*>(adaptee->getFirstChild());
@@ -67,34 +72,33 @@ namespace dom
         }
         virtual XERCES::DOMDocument      *getOwnerDocument() const
         {
-            //return adaptee->getOwnerDocument();
+            return dynamic_cast<XERCES::DOMDocument*>(adaptee->getOwnerDocument());
         }
         virtual XERCES::DOMNode       *insertBefore(XERCES::DOMNode *newChild,
                                                     XERCES::DOMNode *refChild)
         {
-            
+            NodeAdapter * newAdapter = dynamic_cast<NodeAdapter*>(newChild);
+            NodeAdapter * refAdapter = dynamic_cast<NodeAdapter*>(refChild);
+            adaptee->insertBefore(newAdapter->adaptee, refAdapter->adaptee);
         }
         virtual XERCES::DOMNode  *replaceChild(XERCES::DOMNode *newChild,
                                          XERCES::DOMNode *oldChild)
         {
-            //NodeAdapter * newAdapter = static_cast<NodeAdapter*>(newChild);
-            //NodeAdapter * oldAdapter = static_cast<NodeAdapter*>(oldChild);
+            NodeAdapter * newAdapter = dynamic_cast<NodeAdapter*>(newChild);
+            NodeAdapter * oldAdapter = dynamic_cast<NodeAdapter*>(oldChild);
+            adaptee->replaceChild(newAdapter->adaptee, oldAdapter->adaptee);
         }
-                                         
-                                         
-                                         
-//                                         public org.w3c.dom.Node replaceChild( org.w3c.dom. Node node) {
- //  AdapterNode adapter = (AdapterNode)node;
-  // realNode.replaceChilde(node.getAdaptee());
-//}
 
         virtual XERCES::DOMNode        *removeChild(XERCES::DOMNode *oldChild)
         {
-            
+            NodeAdapter* oldAdapter = dynamic_cast<NodeAdapter*>(oldChild);
+            adaptee->removeChild(oldAdapter->adaptee);
         }
         virtual XERCES::DOMNode        *appendChild(XERCES::DOMNode *newChild)
         {
-            
+            // Wrap the new child up in an adapter!!
+            NodeAdapter* newAdapter = dynamic_cast<NodeAdapter*>(newChild);
+            adaptee->appendChild(newAdapter->adaptee);
         }
         virtual bool             hasChildNodes() const
         {
@@ -104,14 +108,13 @@ namespace dom
         {
             return adaptee->getLocalName().c_str();
         }
-        
-        // Maybe implemented methods
+
+
+        // Unimplemented methods
         virtual const XERCES::XMLCh*      getTextContent() const {}
         virtual void              setTextContent(const XERCES::XMLCh* textContent) {}
         virtual XERCES::DOMNamedNodeMap  *getAttributes() const {}
         virtual bool              hasAttributes() const {}
-
-        // Unimplemented methods
         virtual XERCES::DOMNode        * cloneNode(bool deep) const {}
         virtual void              normalize() {}
         virtual bool              isSupported(const XERCES::XMLCh *feature,

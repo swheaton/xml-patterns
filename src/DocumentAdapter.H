@@ -3,6 +3,7 @@
 
 #include "../xerces/xercesc/dom/DOMDocument.hpp"
 #include "Document.H"
+#include "Element.H"
 #include "NodeAdapter.H"
 
 namespace dom
@@ -20,17 +21,21 @@ namespace dom
             if (adaptee != 0)
                 delete adaptee;
         }
-        virtual XERCES::DOMElement     *createElement(const XERCES::XMLCh *tagName);
+        virtual XERCES::DOMElement     *createElement(const XERCES::XMLCh *tagName)
+        {
+            // Does nothing, waiting for adapter of DOMElement
+        }
         virtual XERCES::DOMText         *createTextNode(const XERCES::XMLCh *data)
         {
-            
+            // Does nothing, waiting for adapter of DOMElement
         }
         virtual XERCES::DOMAttr     *createAttribute(const XERCES::XMLCh *name)
         {
-            
+            // Does nothing, waiting for adapter of DOMElement
         }
         virtual XERCES::DOMElement     *getDocumentElement() const
         {
+            // Does nothing right now, need to wrap it in adapter of DOMElement before returning
             //return adaptee->getDocumentElement();
         }
 

@@ -1,0 +1,29 @@
+===== Adapter ======
+I created two Adapters, DocumentAdapter and NodeAdapter.  The NodeAdapter class
+has a private Node_Impl member it can use as its implementation while publically
+extending the interface of the XERCES DOM in order to wrap that library. The DocumentAdapter
+Adapter was similar. Our DOM and XERCES DOM had very similar interfaces, so not
+much conversion needed to happen. but many functions were left unimplemented as
+they had no match in our DOM implementation. The DocumentAdapter's create functions
+also couldn't be completed because they require corresponding adapters to be written
+for the types they return so everything in the tree is a DOM Adapter and not mixed.
+Finally, another interesting aspect is that in the tree modification functions like
+appendChild, the XERCES DOMNode must first be cast to a NodeAdapter, and then its
+adaptee member used as the parameter to pass into the real appendChild() function.
+This means that nodes are essentially wrapped and unwrapped every time they pass
+through this adapter.
+
+===== Rationale =====
+I chose Adapter over Bridge for multiple reasons. Adapter is more often used when
+two libraries already exist, like is the case here. Bridge would be used if we were
+designing one interface to be implemented by multiple implementations. But in this
+case each library has its own interfaces, so it will be very difficult to create a
+common one. Finally, we cannot modify the XERCES library, so we couldn't make the
+implementation inherit our common interface, even if we came up with one. So overall,
+adapter was the much better choice.
+
+Further, I chose Object adapter over Class adapter.  From the GoF, an object adapter
+is better when the Adaptee has subclasses, which is the case with our DOM.  The only
+down side to this is that it's harder to override Adaptee behavior. But it wasn't necessary
+to override any of our DOM's functionality, so this isn't a problem. Therefore,
+the object adapter method fit my needs the best.
