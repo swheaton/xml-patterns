@@ -80,8 +80,8 @@ private:
 protected:
 	dom::Document *	document;
 
-	Node_Impl(const std::string & name, short type);
 public:
+	Node_Impl(const std::string & name, short type);
 	virtual ~Node_Impl();
 
 	//

@@ -10,16 +10,12 @@
 #include "XMLValidator.H"
 #include "Builder.H"
 #include "Director.H"
-#include "../xerces/xercesc/dom/DOMNode.hpp"
-#include "NodeAdapter.H"
-#include "DocumentAdapter.H"
 
 void testTokenizer(int argc, char** argv);
 void testSerializer(int argc, char** argv);
 void testValidator(int argc, char** argv);
 void testIterator(int argc, char** argv);
 void testDirector(int argc, char** argv);
-void testAdapter(int argc, char** argv);
 
 void printUsage(void)
 {
@@ -29,7 +25,6 @@ void printUsage(void)
 	printf("\tTest v [file]\n");
 	printf("\tTest i\n");
 	printf("\tTest d [file1] [file2]\n");
-	printf("\tTest a\n");
 }
 
 int main(int argc, char** argv)
@@ -62,20 +57,7 @@ int main(int argc, char** argv)
 	case 'd':
 		testDirector(argc, argv);
 		break;
-		
-	case 'A':
-	case 'a':
-		testAdapter(argc, argv);
-		break;
 	}
-}
-
-void testAdapter(int argc, char** argv)
-{
-	//XERCES::DOMDocument * xercesDoc = new dom::DocumentAdapter;
-	//XERCES::DOMElement * xercesElt = xercesDoc->createElement("root");
-	//xercesDoc->appendChild(xercesElt);
-	//xercesDoc->getChildNodes();
 }
 
 void testTokenizer(int argc, char** argv)
