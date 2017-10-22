@@ -9,3 +9,13 @@ that can be attached to the Builder. Its update() function gets the state, or
 recentNode for the Builder, then validates that Node against its schema.
 
 ===== Mediator =====
+To allow ValidChildren objects to communicate with each other, I made XMLValidator
+(the Observer in part 1) be the Mediator between the objects, so they don't need
+to know about each other. When XMLValidator creates a new ValidChildren object,
+it passes itself it to the object so that it will have a pointer to the mediator.
+Then when ValidChildren's childIsValid() function is called, the results are
+communicated to all others by sending the name and isValid result to the mediator.
+The mediator then sends this information to all of the ValidChildren it knows
+about. Right now I didn't know what the ValidChildren would want to do with that
+information so they do nothing, but in the future they can use this shared status
+information.

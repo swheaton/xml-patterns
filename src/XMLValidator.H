@@ -1,3 +1,6 @@
+#ifndef XMLVALIDATOR_H
+#define XMLVALIDATOR_H
+
 #include <string>
 #include <fstream>
 #include <ios>
@@ -5,8 +8,7 @@
 
 #include "Element.H"
 #include "Observer.H"
-
-class ValidChildren;
+#include "ValidChildren.H"
 
 class XMLValidator : public virtual Observer
 {
@@ -21,4 +23,9 @@ public:
 	
 	// Observer functions
 	virtual void update(Subject* changedSubject);
+	
+	// Mediator function for sharing info
+	void shareValidationInfo(const std::string& child, bool isValid);
 };
+
+#endif

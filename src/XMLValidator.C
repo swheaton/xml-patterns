@@ -14,7 +14,7 @@ ValidChildren * XMLValidator::addSchemaElement(std::string element)
 	}
 
 	ValidChildren *	schemaElement	= 0;
-	schema.push_back(schemaElement = new ValidChildren(element));
+	schema.push_back(schemaElement = new ValidChildren(element, this));
 	return schemaElement;
 }
 
@@ -44,5 +44,14 @@ void XMLValidator::update(Subject* changedSubject)
 				throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newNode->getNodeName() + ".");
 			}
 		}
+	}
+}
+
+// Share validation info from one ValidChildren object with all others
+void XMLValidator::shareValidationInfo(const std::string& child, bool isValid)
+{
+	for (ValidChildren* schemaElement : schema)
+	{
+		schemaElement->shareValidationInfo(child, isValid);
 	}
 }

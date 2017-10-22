@@ -1,5 +1,5 @@
 OBJS	= Observer.o Attr.o Document.o Element.o NamedNodeMap.o Node.o Text.o XMLTokenizer.o XMLSerializer.o XMLValidator.o ValidChildren.o Director.o Builder.o
-CPPFLAGS= -Iregexpp3/ -Ixerces/ -g
+CPPFLAGS= -Iregexpp3/ -Ixerces/ -g -std=c++11
 
 all: Test
 
