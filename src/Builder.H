@@ -4,20 +4,24 @@
 #include <stack>
 #include <string>
 
+#include "Observer.H"
+
 namespace dom
 {
 	class Document;
 	class Element;
 	class Attr;
+	class Node;
 };
 
-class Builder
+class Builder : public virtual Subject
 {
 private:
 	dom::Document *			factory;
 	std::stack<dom::Element *>	elementStack;
 	dom::Element *			currentElement;
 	dom::Attr *			currentAttr;
+	dom::Node *			recentNode;
 
 	virtual const std::string	trim(const std::string & s) const;
 public:
@@ -35,6 +39,9 @@ public:
 	virtual bool		popElement(void);
 	virtual void		pushElement(void);
 	virtual void		valueAttribute(const std::string & value);
+	
+	// Get state after notify()
+	dom::Node *			getRecentNode();
 };
 
 #endif // BUILDER_H

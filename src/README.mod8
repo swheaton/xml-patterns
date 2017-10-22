@@ -1,0 +1,11 @@
+===== Observer =====
+In Observer.H/.C, I created the Subject and Observer base classes. Subject implements
+the attach(), detach(), and notify classes. Observer is just an interface class which
+requires subclasses to implement the update() function. Builder is the ConcreteSubject
+in my implementation.  It keeps a state of recentNode, which is the "state" or latest
+node added by the Builder. When Builder adds a Node to the DOM tree, it calls notify()
+and sets recentNode to the recently-updated Node. XMLValidator is the ConcreteObserver
+that can be attached to the Builder. Its update() function gets the state, or
+recentNode for the Builder, then validates that Node against its schema.
+
+===== Mediator =====

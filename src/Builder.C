@@ -9,7 +9,8 @@
 
 void Builder::addValue(const std::string & text)
 {
-	elementStack.top()->appendChild(static_cast<dom::Node *>(factory->createTextNode(trim(text))));
+	recentNode = elementStack.top()->appendChild(static_cast<dom::Node *>(factory->createTextNode(trim(text))));
+	notify();
 }
 
 void Builder::confirmElement(const std::string & tag)
@@ -20,7 +21,8 @@ void Builder::confirmElement(const std::string & tag)
 void Builder::createAttribute(const std::string & attribute)
 {
 	std::string	trimmed	= trim(attribute);
-	currentAttr	= factory->createAttribute(std::string(trimmed, 0, trimmed.size() - 1));
+	recentNode = currentAttr	= factory->createAttribute(std::string(trimmed, 0, trimmed.size() - 1));
+	notify();
 }
 
 void Builder::createElement(const std::string & tag)
@@ -28,9 +30,10 @@ void Builder::createElement(const std::string & tag)
 	currentElement	= factory->createElement(trim(tag));
 
 	if (elementStack.size() == 0)	// This is the root element.
-		factory->appendChild(currentElement);
+		recentNode = factory->appendChild(currentElement);
 	else
-		elementStack.top()->appendChild(currentElement);
+		recentNode = elementStack.top()->appendChild(currentElement);
+	notify();
 }
 
 void Builder::createProlog(void)
@@ -80,4 +83,9 @@ const std::string Builder::trim(const std::string & s) const
 	for (stop_index = s.size() - 1; stop_index >= start_index && isspace(s[stop_index]); stop_index--);
 
 	return std::string(s, start_index, stop_index - start_index + 1);
+}
+
+dom::Node* Builder::getRecentNode()
+{
+	return recentNode;
 }

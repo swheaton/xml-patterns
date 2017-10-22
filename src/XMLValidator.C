@@ -1,5 +1,7 @@
 #include "XMLValidator.H"
 #include "ValidChildren.H"
+#include "Builder.H"
+#include "Attr.H"
 
 ValidChildren * XMLValidator::addSchemaElement(std::string element)
 {
@@ -24,4 +26,23 @@ std::vector<ValidChildren *>::iterator XMLValidator::findSchemaElement(std::stri
 			return i;
 
 	return schema.end();
+}
+
+void XMLValidator::update(Subject* changedSubject)
+{
+	// Make sure Subject is of type Builder... it should be
+	Builder* builderSubject = dynamic_cast<Builder*>(changedSubject);
+	if (builderSubject != NULL)
+	{
+		dom::Node * newNode = builderSubject->getRecentNode();
+		ValidChildren* schemaElement	= *findSchemaElement(newNode->getParentNode()->getNodeName());
+		if (schemaElement != NULL)
+		{
+			bool isAttr = (dynamic_cast<dom::Attr*>(newNode) != NULL);
+			if(!schemaElement->childIsValid(newNode->getNodeName(), isAttr))
+			{
+				throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newNode->getNodeName() + ".");
+			}
+		}
+	}
 }
