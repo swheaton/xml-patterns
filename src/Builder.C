@@ -9,8 +9,11 @@
 
 void Builder::addValue(const std::string & text)
 {
-	recentNode = elementStack.top()->appendChild(static_cast<dom::Node *>(factory->createTextNode(trim(text))));
-	notify();
+	std::string	trimmed	= trim(text);
+	if (!notify(elementStack.top(), dom::Node::TEXT_NODE, trimmed))
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR,
+		  "Invalid TEXT node '" + trimmed + "' for element " + elementStack.top()->getTagName() + ".");
+	elementStack.top()->appendChild(static_cast<dom::Node *>(factory->createTextNode(trimmed)));
 }
 
 void Builder::confirmElement(const std::string & tag)
@@ -21,19 +24,27 @@ void Builder::confirmElement(const std::string & tag)
 void Builder::createAttribute(const std::string & attribute)
 {
 	std::string	trimmed	= trim(attribute);
-	recentNode = currentAttr	= factory->createAttribute(std::string(trimmed, 0, trimmed.size() - 1));
-	notify();
+	trimmed			= std::string(trimmed, 0, trimmed.size() - 1);
+	if (currentElement != 0)	// Remove this check and let Observer handle null if we handle prolog attributes.
+		if (!notify(currentElement, dom::Node::ATTRIBUTE_NODE, trimmed))
+			throw dom::DOMException(dom::DOMException::VALIDATION_ERR,
+			  "Invalid ATTRIBUTE node '" + trimmed + "' for element " + currentElement->getTagName() + ".");
+	currentAttr	= factory->createAttribute(trimmed);
 }
 
 void Builder::createElement(const std::string & tag)
 {
-	currentElement	= factory->createElement(trim(tag));
+	std::string	trimmed	= trim(tag);
+	if (!notify(elementStack.size() == 0 ? 0 : elementStack.top(), dom::Node::ELEMENT_NODE, trimmed))
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR,
+		  "Invalid ELEMENT node '" + trimmed + "' for element " +
+		  (elementStack.size() == 0 ? "root" : elementStack.top()->getTagName()) + ".");
+	currentElement	= factory->createElement(trimmed);
 
 	if (elementStack.size() == 0)	// This is the root element.
-		recentNode = factory->appendChild(currentElement);
+		factory->appendChild(currentElement);
 	else
-		recentNode = elementStack.top()->appendChild(currentElement);
-	notify();
+		elementStack.top()->appendChild(currentElement);
 }
 
 void Builder::createProlog(void)
@@ -67,7 +78,11 @@ void Builder::pushElement(void)
 void Builder::valueAttribute(const std::string & value)
 {
 	std::string	trimmed	= trim(value);
-	currentAttr->setValue(std::string(trimmed, 1, trimmed.size() - 2));
+	trimmed			= std::string(trimmed, 1, trimmed.size() - 2);
+	if (!notify(currentAttr, dom::Node::ATTRIBUTE_NODE, trimmed))
+		throw dom::DOMException(dom::DOMException::VALIDATION_ERR,
+		  "Invalid ATTRIBUTE VALUE '" + trimmed + "' for attribute " + currentAttr->getName() + ".");
+	currentAttr->setValue(trimmed);
 
 	if (currentElement != 0)	// Discard prolog attributes.  This implementation currently doesn't have
 					// anything to do with them.
@@ -83,9 +98,4 @@ const std::string Builder::trim(const std::string & s) const
 	for (stop_index = s.size() - 1; stop_index >= start_index && isspace(s[stop_index]); stop_index--);
 
 	return std::string(s, start_index, stop_index - start_index + 1);
-}
-
-dom::Node* Builder::getRecentNode()
-{
-	return recentNode;
 }

@@ -1,26 +1,17 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
-#include <vector>
+#include <string>
 
-class Observer;
-class Subject {
-public:
-    virtual ~Subject() {}
-    virtual void attach(Observer* obs);
-    virtual void detach(Observer* obs);
-    virtual void notify();
-protected:
-    Subject() {}
-private:
-    std::vector < Observer* > observers;
+namespace dom
+{
+	class Node;
 };
 
-class Observer {
+class Observer
+{
 public:
-    virtual void update(Subject* changedSubject) = 0;
-protected:
-    Observer() {}
+	virtual bool	update(dom::Node * container, short targetType, std::string & target) = 0;
 };
 
 #endif // OBSERVER_H

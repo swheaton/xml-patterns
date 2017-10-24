@@ -3,22 +3,22 @@
 
 #include <vector>
 #include <string>
+#include "Observer.H"
 
 class XMLValidator;
 
-class ValidChildren
+class ValidChildren : public Observer // and Colleague
 {
 private:
 	std::string			thisElement;
 	std::vector<std::string>	validChildren;
 	std::vector<bool>		childIsAttribute;
 	bool				_canHaveText;
-	XMLValidator*		mediator;
+	XMLValidator *			mediator;
+	bool				active;
 public:
-	ValidChildren(std::string _thisElement, XMLValidator* _mediator) :
-		thisElement(_thisElement),
-		_canHaveText(false),
-		mediator(_mediator) {}
+	ValidChildren(std::string _thisElement, XMLValidator * _mediator) :
+	  thisElement(_thisElement), _canHaveText(false), mediator(_mediator), active(true)	{}
 
 	virtual std::string	getThisElement(void)			{ return thisElement; }
 	virtual bool		canHaveText(void)			{ return _canHaveText; }
@@ -26,10 +26,10 @@ public:
 
 	virtual void		addValidChild(const std::string & child, bool isAttribute);
 	virtual bool		childIsValid(const std::string & child, bool isAttribute);
-	
-	// Does nothing right now, but ValidChildren can use this information in
-	//	the future
-	void shareValidationInfo(const std::string& child, bool isValid) {}
+
+	virtual void		activate(void)				{ active = true; }
+	virtual void		deactivate(void)			{ active = false; }
+	virtual bool		update(dom::Node * container, short targetType, std::string & target);
 };
 
 #endif // VALIDCHILDREN_H

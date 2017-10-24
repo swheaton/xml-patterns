@@ -1,7 +1,6 @@
 #include "XMLValidator.H"
 #include "ValidChildren.H"
-#include "Builder.H"
-#include "Attr.H"
+#include "Subject.H"
 
 ValidChildren * XMLValidator::addSchemaElement(std::string element)
 {
@@ -10,11 +9,15 @@ ValidChildren * XMLValidator::addSchemaElement(std::string element)
 	if (schemaElementIterator != schema.end())
 	{
 		schema.erase(schemaElementIterator);
+		if (subject != 0)
+			subject->detach(*schemaElementIterator);
 		delete *schemaElementIterator;
 	}
 
 	ValidChildren *	schemaElement	= 0;
 	schema.push_back(schemaElement = new ValidChildren(element, this));
+	if (subject != 0)
+		subject->attach(schemaElement);
 	return schemaElement;
 }
 
@@ -28,30 +31,12 @@ std::vector<ValidChildren *>::iterator XMLValidator::findSchemaElement(std::stri
 	return schema.end();
 }
 
-void XMLValidator::update(Subject* changedSubject)
+void XMLValidator::validation(std::string & thisElement, const std::string &child, bool isAttribute)
 {
-	// Make sure Subject is of type Builder... it should be
-	Builder* builderSubject = dynamic_cast<Builder*>(changedSubject);
-	if (builderSubject != NULL)
-	{
-		dom::Node * newNode = builderSubject->getRecentNode();
-		ValidChildren* schemaElement	= *findSchemaElement(newNode->getParentNode()->getNodeName());
-		if (schemaElement != NULL)
-		{
-			bool isAttr = (dynamic_cast<dom::Attr*>(newNode) != NULL);
-			if(!schemaElement->childIsValid(newNode->getNodeName(), isAttr))
-			{
-				throw dom::DOMException(dom::DOMException::VALIDATION_ERR, "Invalid child node " + newNode->getNodeName() + ".");
-			}
-		}
-	}
-}
-
-// Share validation info from one ValidChildren object with all others
-void XMLValidator::shareValidationInfo(const std::string& child, bool isValid)
-{
-	for (ValidChildren* schemaElement : schema)
-	{
-		schemaElement->shareValidationInfo(child, isValid);
-	}
+	//
+	// Some arbitrary decision algorithm.  In this case, halt validation when we encounter attribute2.
+	//
+	if (isAttribute && thisElement == "element" && child == "attribute2")
+		for (std::vector<ValidChildren *>::iterator i = schema.begin(); i != schema.end(); i++)
+			(*i)->deactivate();
 }

@@ -1,31 +1,27 @@
-#ifndef XMLVALIDATOR_H
-#define XMLVALIDATOR_H
-
 #include <string>
 #include <fstream>
 #include <ios>
 #include <vector>
 
 #include "Element.H"
-#include "Observer.H"
-#include "ValidChildren.H"
 
-class XMLValidator : public virtual Observer
+class ValidChildren;
+class Subject;
+
+//
+// Mediator
+//
+class XMLValidator
 {
 private:
 	std::vector<ValidChildren *>	schema;
+	Subject *			subject;
 public:
-	XMLValidator(void)	{}
-	~XMLValidator() { for (int i = 0; i < schema.size(); i++) delete schema[i]; }
+	XMLValidator(void) : subject(0)				{}
+	XMLValidator(Subject * _subject) : subject(_subject)	{}
+	~XMLValidator()						{ for (int i = 0; i < schema.size(); i++) delete schema[i]; }
 
 	virtual ValidChildren *				addSchemaElement(std::string element);
 	virtual std::vector<ValidChildren *>::iterator	findSchemaElement(std::string element);
-	
-	// Observer functions
-	virtual void update(Subject* changedSubject);
-	
-	// Mediator function for sharing info
-	void shareValidationInfo(const std::string& child, bool isValid);
+	virtual void					validation(std::string & thisElement, const std::string &child, bool isAttribute);
 };
-
-#endif

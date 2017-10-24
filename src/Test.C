@@ -288,6 +288,23 @@ void testDirector(int argc, char** argv)
 {
 	dom::Document *	document	= new Document_Impl;
 	Builder		builder(document);
+	//
+	// Schema for this document:
+	// document contains:  element
+	// element contains:  element
+	// element contains attributes:  attribute, attribute2
+	//
+	XMLValidator	xmlValidator(&builder);
+	ValidChildren *	schemaElement	= xmlValidator.addSchemaElement("");
+	schemaElement->addValidChild("document", false);
+	schemaElement	= xmlValidator.addSchemaElement("document");
+	schemaElement->addValidChild("element", false);
+	schemaElement	= xmlValidator.addSchemaElement("element");
+	schemaElement->addValidChild("element", false);
+	schemaElement->addValidChild("attribute", true);
+	schemaElement->addValidChild("attribute2", true);
+	schemaElement->setCanHaveText(true);
+
 	Director	director(argv[2], &builder);
 	std::fstream	file(argv[3], std::ios_base::out);
 	XMLSerializer	xmlSerializer(&file);
