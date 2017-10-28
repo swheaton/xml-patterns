@@ -8,6 +8,7 @@
 #include "XMLTokenizer.H"
 #include "XMLSerializer.H"
 #include "XMLValidator.H"
+#include "XMLValidatorSave.H"
 #include "Builder.H"
 #include "Director.H"
 
@@ -196,6 +197,12 @@ void testValidator(int argc, char** argv)
 	schemaElement->addValidChild("attribute", true);
 	schemaElement->addValidChild("attribute2", true);
 	schemaElement->setCanHaveText(true);
+	
+	// Add something, then revert
+	XMLValidatorSave saver(&xmlValidator);
+	saver.save();
+	schemaElement->addValidChild("attribute3", true);
+	saver.revertToLastSave();
 
 	dom::Document *	document	= new DocumentValidator(new Document_Impl, &xmlValidator);
 	dom::Element *	root		= 0;

@@ -40,3 +40,33 @@ void XMLValidator::validation(std::string & thisElement, const std::string &chil
 		for (std::vector<ValidChildren *>::iterator i = schema.begin(); i != schema.end(); i++)
 			(*i)->deactivate();
 }
+
+std::vector<ValidChildren *> XMLValidator::cloneSchema(const std::vector<ValidChildren*>& schemaToCopy)
+{
+	std::vector<ValidChildren*> newSchema;
+	// Do deep copy of schema
+	for(int i = 0; i < schemaToCopy.size(); i++)
+	{
+		// No need for a deep copy of ValidChildren, it has no pointers, except
+		//	mediator, which we want to keep the same
+		ValidChildren* clonedValidChildren = new ValidChildren(*schemaToCopy[i]);
+		newSchema.push_back(clonedValidChildren);
+	}
+	return newSchema;
+}
+
+XMLValidator::Memento* XMLValidator::createMemento()
+{
+	XMLValidator::Memento* memento = new XMLValidator::Memento();
+	memento->schema = XMLValidator::cloneSchema(this->schema);
+}
+
+void XMLValidator::setFromMemento(const XMLValidator::Memento* memento)
+{
+	// First delete the old schema
+	for (int i = 0; i < schema.size(); i++)
+		delete schema[i];
+		
+	// Now clone the memento's schema and set it
+	schema = XMLValidator::cloneSchema(memento->schema);
+}

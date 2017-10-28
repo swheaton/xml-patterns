@@ -1,0 +1,9 @@
+===== Memento =====
+To allow preservation of the the XMLValidator class, I created a Memento class
+inside XMLValidator. Its state is the schema vector that XMLValidator has. The
+only public function on Memento is the destructor, which provides the narrow public
+interface. XMLValidator, as a friend class, is the only one that can create a
+Memento through the createMemento() function. When creating Mementos or restoring
+from them, we have to do a deepy copy of the schema vector. I also created an
+XMLValidatorSave class that acts as the Caretaker on XMLValidator, providing save()
+and revertToLastSave() functions.
