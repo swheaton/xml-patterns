@@ -267,3 +267,28 @@ bool ElementProxy::hasChildNodes(void)
 
 	return realSubject->hasChildNodes();
 }
+
+void Element_Impl::handleEvent(dom::Event* event)
+{
+	if (canHandleEvent(event))
+	{
+		printf("Handling %s event with message %s by %s\n",
+			dom::Event::names[event->type].c_str(), event->message.c_str(), getNodeName().c_str());
+	}
+	else if(dynamic_cast<dom::Element*>(getParentNode()) != NULL)
+	{
+		dynamic_cast<dom::Element*>(getParentNode())->handleEvent(event);
+	}
+	// Else, event falls off deep end w/o getting handled
+	else
+	{
+		printf("Event %s not being handled by anyone in chain\n", dom::Event::names[event->type].c_str());
+	}
+}
+
+bool Element_Impl::canHandleEvent(dom::Event* event)
+{
+	return getAttribute("eventHandler") == dom::Event::names[event->type];
+}
+
+const std::vector<std::string> dom::Event::names({"type1", "type2", "type3"});

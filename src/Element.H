@@ -12,6 +12,27 @@ namespace dom
 	class Attr;
 	class NodeList;
 	class Document;
+	
+	class Event
+	{
+	public:
+		enum Type
+		{
+			TYPE1,
+			TYPE2,
+			TYPE3,
+			NONE
+		};
+
+		static const std::vector<std::string> names;
+		Event(Type type_, const std::string& message_) :
+			type(type_),
+			message(message_) {}
+		
+		Type type;
+		// Other Event stuff...
+		std::string message;
+	};
 
 	class Element : public virtual Node
 	{
@@ -35,6 +56,10 @@ namespace dom
 
 		virtual dom::NamedNodeMap *	getAttributes(void)							= 0;
 		virtual bool			hasAttributes(void)							= 0;
+		
+		// Event handler with Chain of Responsibility method
+		virtual void handleEvent(Event* event) = 0;
+		virtual bool canHandleEvent(Event* event) = 0;
 	};
 };
 
@@ -66,6 +91,10 @@ public:
 
 	virtual dom::NamedNodeMap *	getAttributes(void)	{ return &attributes; }
 	virtual bool			hasAttributes(void)	{ return attributes.size() > 0; }
+	
+	// Event handler with Chain of Responsibility method
+	virtual void handleEvent(dom::Event* event);
+	virtual bool canHandleEvent(dom::Event* event);
 };
 
 class ElementDecorator : public virtual dom::Element
@@ -103,6 +132,8 @@ public:
 	virtual bool			hasAttribute(const std::string & name)		{ return parent->hasAttribute(name); }
 	virtual void			removeAttribute(const std::string & name)	{ parent->removeAttribute(name); }
 	virtual dom::Attr *		removeAttributeNode(dom::Attr * oldAttr) { return parent->removeAttributeNode(oldAttr); }
+	virtual void handleEvent(dom::Event* event) {parent->handleEvent(event); }
+	virtual bool canHandleEvent(dom::Event* event) {return parent->canHandleEvent(event); }
 
 	//
 	// Decorated Methods
@@ -187,6 +218,8 @@ public:
 	virtual dom::Document *		getOwnerDocument(void)				{ return realSubject->getOwnerDocument(); }
 	virtual dom::Node *		removeChild(Node * oldChild)			{return realSubject->removeChild(oldChild);}
 	virtual const std::string &	getLocalName(void)				{ return realSubject->getLocalName(); }
+	virtual void handleEvent(dom::Event* event) {realSubject->handleEvent(event); }
+	virtual bool canHandleEvent(dom::Event* event) {return realSubject->canHandleEvent(event); }
 };
 
 #endif // ELEMENT_H

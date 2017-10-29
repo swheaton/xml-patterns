@@ -1,0 +1,19 @@
+===== Chain of Responsibility =====
+The DOM can now handle events with attribute eventHandler="typeN" using Chain of
+Responsibility. I did not create a separate Handler base class because only the Element
+class needs to be able to handle events, so we can just put the functions there.
+It has a handleEvent() function that calls canHandleEvent() to see if the Element
+can handle the event type (if it has the right eventHandler attribute). If it does,
+the event is handled (just printed out right now). If not, the event is passed back
+up to the Element's parent successively until the parent isn't an Element or is Null.
+
+
+===== Memento =====
+To allow preservation of the the XMLValidator class, I created a Memento class
+inside XMLValidator. Its state is the schema vector that XMLValidator has. The
+only public function on Memento is the destructor, which provides the narrow public
+interface. XMLValidator, as a friend class, is the only one that can create a
+Memento through the createMemento() function. When creating Mementos or restoring
+from them, we have to do a deepy copy of the schema vector. I also created an
+XMLValidatorSave class that acts as the Caretaker on XMLValidator, providing save()
+and revertToLastSave() functions.

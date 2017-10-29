@@ -17,6 +17,8 @@ void testSerializer(int argc, char** argv);
 void testValidator(int argc, char** argv);
 void testIterator(int argc, char** argv);
 void testDirector(int argc, char** argv);
+void testEvent(int argc, char** argv);
+
 
 void printUsage(void)
 {
@@ -58,7 +60,45 @@ int main(int argc, char** argv)
 	case 'd':
 		testDirector(argc, argv);
 		break;
+	case 'E':
+	case 'e':
+		testEvent(argc, argv);
 	}
+}
+
+void testEvent(int argc, char** argv)
+{
+	//
+	// Create tree of this document:
+	// <? xml version="1.0" encoding="UTF-8"?>
+	// <document>
+	//   <element1 eventHandler="type1"/>
+	//		<element2 eventHandler="type2"/>
+	//   <element1/>
+	// </document>
+	//
+	dom::Document *	document	= new Document_Impl;
+	dom::Element *	root		= document->createElement("document");
+	document->appendChild(root);
+
+	dom::Element *	child		= document->createElement("element1");
+	dom::Attr *	attr		= document->createAttribute("eventHandler");
+	attr->setValue("type1");
+	child->setAttributeNode(attr);
+	root->appendChild(child);
+
+	dom::Element* child2				= document->createElement("element2");
+	child2->setAttribute("eventHandler", "type2");
+	child->appendChild(child2);
+	
+	dom::Event e(dom::Event::TYPE2, "hi type2");
+	child2->handleEvent(&e);
+	e = dom::Event(dom::Event::TYPE1, "hi type1");
+	child2->handleEvent(&e);
+	e = dom::Event(dom::Event::TYPE3, "hi type3");
+	child2->handleEvent(&e);
+
+	// delete Document and tree.
 }
 
 void testTokenizer(int argc, char** argv)
