@@ -19,6 +19,9 @@ private:
 public:
 	ValidChildren(std::string _thisElement, XMLValidator * _mediator) :
 	  thisElement(_thisElement), _canHaveText(false), mediator(_mediator), active(true)	{}
+	ValidChildren(const ValidChildren & v) :
+	  thisElement(v.thisElement), validChildren(v.validChildren), childIsAttribute(v.childIsAttribute),
+	  _canHaveText(v._canHaveText), mediator(v.mediator) {}
 
 	virtual std::string	getThisElement(void)			{ return thisElement; }
 	virtual bool		canHaveText(void)			{ return _canHaveText; }

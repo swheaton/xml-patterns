@@ -41,32 +41,49 @@ void XMLValidator::validation(std::string & thisElement, const std::string &chil
 			(*i)->deactivate();
 }
 
-std::vector<ValidChildren *> XMLValidator::cloneSchema(const std::vector<ValidChildren*>& schemaToCopy)
+Memento * XMLValidator::CreateMemento(void)
 {
-	std::vector<ValidChildren*> newSchema;
-	// Do deep copy of schema
-	for(int i = 0; i < schemaToCopy.size(); i++)
+	return new Memento_Impl(subject, schema);
+}
+
+bool XMLValidator::SetMemento(Memento * memento)
+{
+	if (dynamic_cast<Memento_Impl *>(memento) != 0)
 	{
-		// No need for a deep copy of ValidChildren, it has no pointers, except
-		//	mediator, which we want to keep the same
-		ValidChildren* clonedValidChildren = new ValidChildren(*schemaToCopy[i]);
-		newSchema.push_back(clonedValidChildren);
+		Memento_Impl *	m	= (Memento_Impl *)memento;
+
+		subject	= m->GetSubject();
+		m->GetSchema(schema);
+
+		return true;
 	}
-	return newSchema;
+	else
+		return false;
 }
 
-XMLValidator::Memento* XMLValidator::createMemento()
+Memento_Impl::Memento_Impl(Subject * _subject, std::vector<ValidChildren *> & _schema)
 {
-	XMLValidator::Memento* memento = new XMLValidator::Memento();
-	memento->schema = XMLValidator::cloneSchema(this->schema);
+	duplicateSchema(_schema, schema);
+	subject	= _subject;
 }
 
-void XMLValidator::setFromMemento(const XMLValidator::Memento* memento)
+void Memento_Impl::GetSchema(std::vector<ValidChildren *> & s)
 {
-	// First delete the old schema
-	for (int i = 0; i < schema.size(); i++)
-		delete schema[i];
-		
-	// Now clone the memento's schema and set it
-	schema = XMLValidator::cloneSchema(memento->schema);
+	duplicateSchema(schema, s);
+}
+
+Subject * Memento_Impl::GetSubject(void)
+{
+	return subject;
+}
+
+void Memento_Impl::duplicateSchema(std::vector<ValidChildren *> & ins, std::vector<ValidChildren *> & outs)
+{
+	for (std::vector<ValidChildren *>::iterator iterator = outs.begin(); iterator != outs.end(); iterator++)
+		delete *iterator;
+
+	outs.clear();
+
+	for (std::vector<ValidChildren *>::iterator iterator = ins.begin(); iterator != ins.end(); iterator++)
+		outs.push_back(new ValidChildren(**iterator));
 }

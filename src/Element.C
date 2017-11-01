@@ -4,6 +4,9 @@
 #include "Document.H"
 #include "XMLValidator.H"
 
+#include <iostream>
+#include <ios>
+
 Element_Impl::Element_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ELEMENT_NODE),
   attributes(document)
 {
@@ -268,27 +271,14 @@ bool ElementProxy::hasChildNodes(void)
 	return realSubject->hasChildNodes();
 }
 
-void Element_Impl::handleEvent(dom::Event* event)
+void Element_Impl::HandleRequest(std::string & event)
 {
-	if (canHandleEvent(event))
-	{
-		printf("Handling %s event with message %s by %s\n",
-			dom::Event::names[event->type].c_str(), event->message.c_str(), getNodeName().c_str());
-	}
-	else if(dynamic_cast<dom::Element*>(getParentNode()) != NULL)
-	{
-		dynamic_cast<dom::Element*>(getParentNode())->handleEvent(event);
-	}
-	// Else, event falls off deep end w/o getting handled
+	const std::string	eventTemplate	= getAttribute("message");
+
+	if (eventTemplate == event)
+		std::cout << "Handling event " << event << "." << std::endl;
+	else if (getParentNode() != 0 && dynamic_cast<dom::Element *>(getParentNode()) != 0)
+		dynamic_cast<dom::Element *>(getParentNode())->HandleRequest(event);
 	else
-	{
-		printf("Event %s not being handled by anyone in chain\n", dom::Event::names[event->type].c_str());
-	}
+		std::cout << "Reached root of DOM tree without handling event '" << event << "'." << std::endl;
 }
-
-bool Element_Impl::canHandleEvent(dom::Event* event)
-{
-	return getAttribute("eventHandler") == dom::Event::names[event->type];
-}
-
-const std::vector<std::string> dom::Event::names({"type1", "type2", "type3"});

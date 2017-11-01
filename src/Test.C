@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <fstream>
+#include <iostream>
 #include <ios>
 #include "Attr.H"
 #include "Document.H"
@@ -8,7 +9,6 @@
 #include "XMLTokenizer.H"
 #include "XMLSerializer.H"
 #include "XMLValidator.H"
-#include "XMLValidatorSave.H"
 #include "Builder.H"
 #include "Director.H"
 
@@ -19,7 +19,6 @@ void testIterator(int argc, char** argv);
 void testDirector(int argc, char** argv);
 void testEvent(int argc, char** argv);
 
-
 void printUsage(void)
 {
 	printf("Usage:\n");
@@ -28,6 +27,7 @@ void printUsage(void)
 	printf("\tTest v [file]\n");
 	printf("\tTest i\n");
 	printf("\tTest d [file1] [file2]\n");
+	printf("\tTest e [file]\n");
 }
 
 int main(int argc, char** argv)
@@ -63,42 +63,8 @@ int main(int argc, char** argv)
 	case 'E':
 	case 'e':
 		testEvent(argc, argv);
+		break;
 	}
-}
-
-void testEvent(int argc, char** argv)
-{
-	//
-	// Create tree of this document:
-	// <? xml version="1.0" encoding="UTF-8"?>
-	// <document>
-	//   <element1 eventHandler="type1"/>
-	//		<element2 eventHandler="type2"/>
-	//   <element1/>
-	// </document>
-	//
-	dom::Document *	document	= new Document_Impl;
-	dom::Element *	root		= document->createElement("document");
-	document->appendChild(root);
-
-	dom::Element *	child		= document->createElement("element1");
-	dom::Attr *	attr		= document->createAttribute("eventHandler");
-	attr->setValue("type1");
-	child->setAttributeNode(attr);
-	root->appendChild(child);
-
-	dom::Element* child2				= document->createElement("element2");
-	child2->setAttribute("eventHandler", "type2");
-	child->appendChild(child2);
-	
-	dom::Event e(dom::Event::TYPE2, "hi type2");
-	child2->handleEvent(&e);
-	e = dom::Event(dom::Event::TYPE1, "hi type1");
-	child2->handleEvent(&e);
-	e = dom::Event(dom::Event::TYPE3, "hi type3");
-	child2->handleEvent(&e);
-
-	// delete Document and tree.
 }
 
 void testTokenizer(int argc, char** argv)
@@ -237,12 +203,9 @@ void testValidator(int argc, char** argv)
 	schemaElement->addValidChild("attribute", true);
 	schemaElement->addValidChild("attribute2", true);
 	schemaElement->setCanHaveText(true);
-	
-	// Add something, then revert
-	XMLValidatorSave saver(&xmlValidator);
-	saver.save();
-	schemaElement->addValidChild("attribute3", true);
-	saver.revertToLastSave();
+
+	Memento *	m	= xmlValidator.CreateMemento();
+	xmlValidator.SetMemento(m);
 
 	dom::Document *	document	= new DocumentValidator(new Document_Impl, &xmlValidator);
 	dom::Element *	root		= 0;
@@ -356,4 +319,49 @@ void testDirector(int argc, char** argv)
 	std::fstream	file(argv[3], std::ios_base::out);
 	XMLSerializer	xmlSerializer(&file);
 	xmlSerializer.serializePretty(document);
+}
+
+void testEvent(int argc, char** argv)
+{
+	if (argc < 3)
+	{
+		printUsage();
+		exit(0);
+	}
+
+	dom::Document *	document	= new Document_Impl;
+	Builder		builder(document);
+	//
+	// Schema for this document:
+	// handlers contains:  handler
+	// handler contains:  handler
+	// handler contains attributes:  message
+	//
+	XMLValidator	xmlValidator(&builder);
+	ValidChildren *	schemaElement	= xmlValidator.addSchemaElement("");
+	schemaElement->addValidChild("handlers", false);
+	schemaElement	= xmlValidator.addSchemaElement("handlers");
+	schemaElement->addValidChild("handler", false);
+	schemaElement	= xmlValidator.addSchemaElement("handler");
+	schemaElement->addValidChild("handler", false);
+	schemaElement->addValidChild("message", true);
+	schemaElement->setCanHaveText(false);
+
+	Director	director(argv[2], &builder);
+	int		typeCounter	= 1;
+
+	for (dom::Iterator * iterator = document->createIterator(0); iterator->hasNext();)
+	{
+		dom::Node *	node	= iterator->next();
+
+		if (node != 0 && dynamic_cast<dom::Element *>(node) != 0 && !node->hasChildNodes())
+		{
+			char	tempArray[16];
+			snprintf(tempArray, 16, "type%d", typeCounter);
+			std::string	tempString(tempArray);
+			std::cout << "Sending event type" << typeCounter << " to Element node." << std::endl;
+			dynamic_cast<dom::Element *>(node)->HandleRequest(tempString);
+			typeCounter++;
+		}
+	}
 }
