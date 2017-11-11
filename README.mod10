@@ -1,0 +1,34 @@
+===== Architectural - Layers =====
+For an XML file display and editing application, I would choose the layers architecture
+pattern. Layer 1 will be a file system management layer that loads and saves XML
+files. Layer 2 is an in-memory representation of XML DOM with helper functions, like
+the assignment DOM implementation. Layer 3 accesses the in-memory representation
+to edit or save, based on user requests. Finally, layer 4 will be a Graphical User
+Interface that displays the files. It also will edit, load, save, etc. The layers
+will communicate top-to-bottom since the user will use the GUI and then those
+requests will travel down a subset of the layers and come back up with a status
+message.
+
+===== Antipattern - Overuse of Patterns =====
+This pattern might be kind of cheating to apply to this assignment, since by definition
+we are attempting to fit patterns to the problem to get practice with implementing
+them. However, I think it's reasonable to point out because after learning about
+the patterns, we may try and use them where they aren't appropriate. This antipattern
+is about the mis-use of design patterns where they don't necessarily fit, or are
+overkill.
+
+For example in our assignment code, the decorator pattern was applied to
+do validation but there are no other decorator types. Or the Observer pattern
+being used for validation when there is only one class that needs to observe the
+events. Of course these patterns make it easier to extend the functionality in the
+future, but for now they are made unecessarily complex.
+
+There are no mitigation techniques listed in the wiki entry, but one would be to
+follow the classic advice of KISS (keep it simple, stupid!). Sometimes a good rule
+of thumb can be if you're doing the same thing three times, you should refactor it
+somehow and consider a design pattern. For example, there are three pieces of
+functionality that would work as a decorator, or three classes that would like to know
+about the validation events. This doesn't mean that you can just implement requirements
+then refactor once you've done the same thing three times; if it's known at the
+beginning that these will be the requirements, then this can be designed for from
+the beginning. 
