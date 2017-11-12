@@ -1,3 +1,10 @@
 ==== Command ====
+To implement the Command pattern, I created a base class Command that only has
+one virtual void function execute(). There are three ConcreteCommands that derive
+from the Command class: ParseFileCommand, SerializeCommand, and AddAttributeCommand.
+The Receiver for these ConcreteCommands is a dom::Node* for the first two and a
+dom::Element* for the third. If we had a framework built up around this DOM library,
+we would have an Invoker that is given these Commands by the Client and calls their
+execute() method at some point.
 
 ==== Prototype ====
