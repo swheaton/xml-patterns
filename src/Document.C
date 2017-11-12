@@ -50,7 +50,8 @@ dom::Iterator * Document_Impl::createIterator(dom::Node * node)
 
 DocumentValidator::DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::DOCUMENT_NODE),
-  parent(_parent)
+  parent(_parent),
+  validator(xmlValidator)
 {
 	schemaElement	= *xmlValidator->findSchemaElement("");
 }
@@ -138,4 +139,15 @@ dom::Node * DOMIterator::next()
 
 		return temp;
 	}
+}
+
+dom::Node* Document_Impl::clone()
+{
+	dom::Document* newDocument = new Document_Impl();
+	if (getDocumentElement() != 0)
+	{
+		// Clone document element with the new document as the factory
+		newDocument->appendChild(dynamic_cast<Document_Impl*>(getDocumentElement())->cloneWithFactory(newDocument));
+	}
+	return newDocument;
 }

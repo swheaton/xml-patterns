@@ -63,6 +63,10 @@ public:
 	// Iterator Factory
 	//
 	dom::Iterator *		createIterator(dom::Node * node);
+	
+	virtual dom::Node* clone();
+
+	virtual dom::Node* cloneWithFactory(dom::Document* factory) {return clone();}
 };
 
 class DOMIterator : public virtual dom::Iterator
@@ -92,6 +96,7 @@ class DocumentValidator : public virtual DocumentDecorator, public virtual Node_
 private:
 	dom::Document *	parent;
 	ValidChildren *	schemaElement;
+	XMLValidator * validator;
 public:
 	DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator);
 
@@ -120,6 +125,13 @@ public:
 	// Iterator Factory
 	//
 	dom::Iterator *		createIterator(dom::Node * node)		{ return parent->createIterator(node); }
+	
+	virtual dom::Node * clone() {return new DocumentValidator(dynamic_cast<dom::Document*>(parent->clone()), validator);}
+protected:
+	virtual dom::Node * cloneWithFactory(dom::Document* factory)
+	{
+		return new DocumentValidator(dynamic_cast<dom::Document*>(parent->clone()), validator);
+	}
 };
 
 #endif // DOCUMENT_H

@@ -8,3 +8,12 @@ we would have an Invoker that is given these Commands by the Client and calls th
 execute() method at some point.
 
 ==== Prototype ====
+The Prototype pattern was implemented by providing a clone() function as a virtual
+void method on Node. All subclasses of Node must implement this function. The leaf
+Nodes of the Composite structure just create a new version of themselves and copy
+over their relevant data members. Composite Nodes create a new version of themselves,
+but also loop through all children nodes and append() a clone() of them. To solve
+the problem of needing the new cloned Document be the factory that creates all of
+its contained Nodes, I created functions called cloneWithFactory() that are on the
+_Impl side of things only. This allows the Document_Impl clone() function to pass
+the cloned document as the factory to children below it for cloning.

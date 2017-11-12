@@ -68,6 +68,10 @@ public:
 	virtual Node *			replaceChild(Node * newChild, Node * oldChild)	{ return 0; }
 	virtual Node *			removeChild(Node * oldChild)			{ return 0; }
 	virtual Node *			appendChild(Node * newChild)			{ return 0; }
+	
+	virtual Node * clone();
+protected:
+	virtual dom::Node* cloneWithFactory(dom::Document* factory);
 };
 
 #endif // TEXT_H

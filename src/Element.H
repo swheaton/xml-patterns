@@ -76,6 +76,9 @@ public:
 
 	virtual dom::NamedNodeMap *	getAttributes(void)	{ return &attributes; }
 	virtual bool			hasAttributes(void)	{ return attributes.size() > 0; }
+	
+	virtual dom::Node* clone();
+	virtual dom::Node* cloneWithFactory(dom::Document* factory);
 };
 
 class ElementDecorator : public virtual dom::Element
@@ -93,6 +96,7 @@ class ElementValidator : public virtual ElementDecorator, public virtual Node_Im
 private:
 	dom::Element *	parent;
 	ValidChildren *	schemaElement;
+	XMLValidator * validator;
 public:
 	ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator);
 
@@ -147,6 +151,12 @@ public:
 	virtual dom::Node *		removeChild(Node * oldChild)			{ return parent->removeChild(oldChild); }
 	virtual bool			hasChildNodes(void)				{ return parent->hasChildNodes(); }
 	virtual const std::string &	getLocalName(void)				{ return parent->getLocalName(); }
+	
+	virtual dom::Node* clone() { return new ElementValidator(dynamic_cast<dom::Element*>(parent->clone()), validator);}
+	virtual dom::Node* cloneWithFactory(dom::Document* factory)
+	{
+		return new ElementValidator(dynamic_cast<dom::Element*>(parent->clone()), validator);
+	}
 };
 
 class Director;
@@ -207,6 +217,8 @@ public:
 	virtual dom::Document *		getOwnerDocument(void)				{ return realSubject->getOwnerDocument(); }
 	virtual dom::Node *		removeChild(Node * oldChild)			{return realSubject->removeChild(oldChild);}
 	virtual const std::string &	getLocalName(void)				{ return realSubject->getLocalName(); }
+	
+	//virtual dom::Node* clone() {return new ElementProxy(realSubject->clone(), director); }
 };
 
 #endif // ELEMENT_H

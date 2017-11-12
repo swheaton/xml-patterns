@@ -185,7 +185,8 @@ void Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitesp
 
 ElementValidator::ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::ELEMENT_NODE),
-  parent(_parent)
+  parent(_parent),
+  validator(xmlValidator)
 {
 	schemaElement	= *xmlValidator->findSchemaElement(parent->getTagName());
 }
@@ -281,4 +282,24 @@ void Element_Impl::HandleRequest(std::string & event)
 		dynamic_cast<dom::Element *>(getParentNode())->HandleRequest(event);
 	else
 		std::cout << "Reached root of DOM tree without handling event '" << event << "'." << std::endl;
+}
+
+dom::Node* Element_Impl::clone()
+{
+	if (getOwnerDocument() == 0)
+	{
+		return 0;
+	}
+	return cloneWithFactory(getOwnerDocument());
+}
+
+dom::Node* Element_Impl::cloneWithFactory(dom::Document* factory)
+{
+	dom::Element* newElement = factory->createElement(getTagName());
+
+	// Recursively append children clones
+	for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
+	{
+		newElement->appendChild(dynamic_cast<Node_Impl*>((*i))->cloneWithFactory(factory));
+	}
 }

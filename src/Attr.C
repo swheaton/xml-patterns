@@ -1,4 +1,5 @@
 #include "Attr.H"
+#include "Document.H"
 
 Attr_Impl::Attr_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ATTRIBUTE_NODE)
 {
@@ -37,4 +38,20 @@ void			Attr_Impl::setValue(const std::string & value)
 dom::Element *		Attr_Impl::getOwnerElement(void)
 {
 	return (dom::Element *)Node_Impl::getParentNode();
+}
+
+dom::Node * Attr_Impl::clone()
+{
+	if (getOwnerDocument() == 0)
+	{
+		return 0;
+	}
+	cloneWithFactory(getOwnerDocument());
+}
+
+dom::Node* Attr_Impl::cloneWithFactory(dom::Document* factory)
+{
+	dom::Attr* newAttribute = factory->createAttribute(getName());
+	newAttribute->setValue(getValue());
+	return newAttribute;
 }
