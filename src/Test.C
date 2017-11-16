@@ -11,6 +11,7 @@
 #include "XMLValidator.H"
 #include "Builder.H"
 #include "Director.H"
+#include "Invoker.H"
 
 void testTokenizer(int argc, char** argv);
 void testSerializer(int argc, char** argv);
@@ -18,6 +19,8 @@ void testValidator(int argc, char** argv);
 void testIterator(int argc, char** argv);
 void testDirector(int argc, char** argv);
 void testEvent(int argc, char** argv);
+void testCommand(int argc, char** argv);
+void testPrototype(int argc, char** argv);
 
 void printUsage(void)
 {
@@ -28,6 +31,8 @@ void printUsage(void)
 	printf("\tTest i\n");
 	printf("\tTest d [file1] [file2]\n");
 	printf("\tTest e [file]\n");
+	printf("\tTest c\n");
+	printf("\tTest p [file]\n");
 }
 
 int main(int argc, char** argv)
@@ -63,6 +68,14 @@ int main(int argc, char** argv)
 	case 'E':
 	case 'e':
 		testEvent(argc, argv);
+		break;
+	case 'C':
+	case 'c':
+		testCommand(argc, argv);
+		break;
+	case 'P':
+	case 'p':
+		testPrototype(argc, argv);
 		break;
 	}
 }
@@ -364,4 +377,89 @@ void testEvent(int argc, char** argv)
 			typeCounter++;
 		}
 	}
+}
+
+void testCommand(int argc, char** argv)
+{
+	Invoker	invoker;
+
+	invoker.addCommand("read", new ParseCommand(&invoker));
+	invoker.addCommand("write", new WriteCommand(&invoker));
+	invoker.addCommand("print", new PrintCommand(&invoker));
+
+	invoker.run();
+}
+
+void testPrototype(int argc, char** argv)
+{
+	if (argc < 3)
+	{
+		printUsage();
+		exit(0);
+	}
+
+	//
+	// Create tree of this document:
+	// <? xml version="1.0" encoding="UTF-8"?>
+	// <document>
+	//   <element attribute="attribute value"/>
+	//   <element/>
+	//   <element attribute="attribute value" attribute2="attribute2 value">
+	//     Element Value
+	//   </element>
+	//   <element>
+	//   </element>
+	// </document>
+	//
+	// Schema for this document:
+	// document contains:  element
+	// element contains:  element
+	// element contains attributes:  attribute, attribute2
+	//
+	XMLValidator	xmlValidator;
+	ValidChildren *	schemaElement	= xmlValidator.addSchemaElement("");
+	schemaElement->addValidChild("document", false);
+	schemaElement	= xmlValidator.addSchemaElement("document");
+	schemaElement->addValidChild("element", false);
+	schemaElement	= xmlValidator.addSchemaElement("element");
+	schemaElement->addValidChild("element", false);
+	schemaElement->addValidChild("attribute", true);
+	schemaElement->addValidChild("attribute2", true);
+	schemaElement->setCanHaveText(true);
+
+	Memento *	m	= xmlValidator.CreateMemento();
+	xmlValidator.SetMemento(m);
+
+	dom::Document *	document	= new DocumentValidator(new Document_Impl, &xmlValidator);
+	dom::Element *	root		= 0;
+	dom::Element *	child		= 0;
+	dom::Attr *	attr		= 0;
+
+	root		= new ElementValidator(document->createElement("document"), &xmlValidator);
+	document->appendChild(root);
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
+	attr		= document->createAttribute("attribute");
+	attr->setValue("attribute value");
+	child->setAttributeNode(attr);
+	root->appendChild(child);
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
+	root->appendChild(child);
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
+	child->setAttribute("attribute", "attribute value");
+	child->setAttribute("attribute2", "attribute2 value");
+	dom::Text *	text		= document->createTextNode("Element Value");
+	child->appendChild(text);
+	root->appendChild(child);
+	child		= new ElementValidator(document->createElement("element"), &xmlValidator);
+	root->appendChild(child);
+
+	//
+	// Serialize
+	//
+	std::fstream *	file	= 0;
+	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
+	xmlSerializer.serializePretty(document->getDocumentElement()->cloneNode(true));
+	delete file;
+
+	// delete Document and tree.
 }

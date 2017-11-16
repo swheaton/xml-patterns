@@ -1,5 +1,4 @@
 #include "Attr.H"
-#include "Document.H"
 
 Attr_Impl::Attr_Impl(const std::string & tagName, dom::Document * document) : Node_Impl(tagName, dom::Node::ATTRIBUTE_NODE)
 {
@@ -15,7 +14,7 @@ Attr_Impl::Attr_Impl(const std::string & tagName, const std::string & value, dom
 
 Attr_Impl::~Attr_Impl() {}
 
-void Attr_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Attr_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
 {
 	*writer << " " << getName() << "=\"" << getValue() << "\"";
 }
@@ -40,18 +39,7 @@ dom::Element *		Attr_Impl::getOwnerElement(void)
 	return (dom::Element *)Node_Impl::getParentNode();
 }
 
-dom::Node * Attr_Impl::clone()
+dom::Node * Attr_Impl::cloneNode(bool deep)
 {
-	if (getOwnerDocument() == 0)
-	{
-		return 0;
-	}
-	cloneWithFactory(getOwnerDocument());
-}
-
-dom::Node* Attr_Impl::cloneWithFactory(dom::Document* factory)
-{
-	dom::Attr* newAttribute = factory->createAttribute(getName());
-	newAttribute->setValue(getValue());
-	return newAttribute;
+	return new Attr_Impl(getName(), getValue(), getOwnerDocument());
 }

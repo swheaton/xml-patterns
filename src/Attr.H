@@ -2,7 +2,7 @@
 #define ATTR_H
 
 #include <string>
-#include <fstream>
+#include <iostream>
 
 #include "Node.H"
 
@@ -19,7 +19,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual const std::string &	getName(void)				= 0;
 		virtual const std::string &	getValue(void)				= 0;
@@ -42,7 +42,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace);
 
 	virtual const std::string &	getName(void);
 	virtual const std::string &	getValue(void);
@@ -57,9 +57,7 @@ public:
 	virtual Node *			removeChild(Node * oldChild)			{ return 0; }
 	virtual Node *			appendChild(Node * newChild)			{ return 0; }
 
-	virtual Node * clone();
-protected:
-	virtual dom::Node* cloneWithFactory(dom::Document* factory);
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 #endif // ATTR_H

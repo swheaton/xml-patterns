@@ -26,7 +26,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)		= 0;
+		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)		= 0;
 
 		virtual const std::string &	getAttribute(const std::string & name)					= 0;
 		virtual Attr *			getAttributeNode(const std::string & name)				= 0;
@@ -62,7 +62,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace);
 
 	virtual const std::string &	getAttribute(const std::string & name);
 	virtual dom::Attr *		getAttributeNode(const std::string & name);
@@ -76,9 +76,8 @@ public:
 
 	virtual dom::NamedNodeMap *	getAttributes(void)	{ return &attributes; }
 	virtual bool			hasAttributes(void)	{ return attributes.size() > 0; }
-	
-	virtual dom::Node* clone();
-	virtual dom::Node* cloneWithFactory(dom::Document* factory);
+
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 class ElementDecorator : public virtual dom::Element
@@ -96,7 +95,11 @@ class ElementValidator : public virtual ElementDecorator, public virtual Node_Im
 private:
 	dom::Element *	parent;
 	ValidChildren *	schemaElement;
-	XMLValidator * validator;
+
+	ElementValidator(dom::Element * _parent, ValidChildren * _schemaElement) :
+	  Node_Impl("", dom::Node::ELEMENT_NODE),
+	  parent(_parent),
+	  schemaElement(_schemaElement) {}
 public:
 	ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator);
 
@@ -108,7 +111,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
 	  { parent->serialize(writer, whitespace); }
 
 	//
@@ -151,12 +154,8 @@ public:
 	virtual dom::Node *		removeChild(Node * oldChild)			{ return parent->removeChild(oldChild); }
 	virtual bool			hasChildNodes(void)				{ return parent->hasChildNodes(); }
 	virtual const std::string &	getLocalName(void)				{ return parent->getLocalName(); }
-	
-	virtual dom::Node* clone() { return new ElementValidator(dynamic_cast<dom::Element*>(parent->clone()), validator);}
-	virtual dom::Node* cloneWithFactory(dom::Document* factory)
-	{
-		return new ElementValidator(dynamic_cast<dom::Element*>(parent->clone()), validator);
-	}
+
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 class Director;
@@ -191,8 +190,13 @@ public:
 	//
 	// Passthrough Element members.
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace) {realSubject->serialize(writer, whitespace);}
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace) {realSubject->serialize(writer, whitespace);}
 
+	virtual dom::Node *		insertBefore(dom::Node * newChild, dom::Node * refChild)
+	  { return realSubject->insertBefore(newChild, refChild); }
+	virtual dom::Node *		replaceChild(dom::Node * newChild, dom::Node * oldChild)
+	  { return realSubject->replaceChild(newChild, oldChild); }
+	virtual dom::Node *		appendChild(dom::Node * newChild)	{ return realSubject->appendChild(newChild); }
 	virtual const std::string &	getAttribute(const std::string & name)		{ return realSubject->getAttribute(name); }
 	virtual dom::Attr *		getAttributeNode(const std::string & name) { return realSubject->getAttributeNode(name); }
 	virtual dom::NodeList *		getElementsByTagName(const std::string & tagName)
@@ -217,8 +221,8 @@ public:
 	virtual dom::Document *		getOwnerDocument(void)				{ return realSubject->getOwnerDocument(); }
 	virtual dom::Node *		removeChild(Node * oldChild)			{return realSubject->removeChild(oldChild);}
 	virtual const std::string &	getLocalName(void)				{ return realSubject->getLocalName(); }
-	
-	//virtual dom::Node* clone() {return new ElementProxy(realSubject->clone(), director); }
+
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 #endif // ELEMENT_H

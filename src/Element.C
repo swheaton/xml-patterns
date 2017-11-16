@@ -145,7 +145,7 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 	return oldAttribute;
 }
 
-void Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Element_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
 {
 	whitespace->prettyIndentation(writer);
 	*writer << "<" << getTagName();
@@ -183,10 +183,39 @@ void Element_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitesp
 	}
 }
 
+dom::Node * Element_Impl::cloneNode(bool deep)
+{
+	dom::Element *	element	= new Element_Impl(getTagName(), getOwnerDocument());
+
+	if (deep)
+	{
+		dom::NodeList *	children	= getChildNodes();
+
+		for (dom::NodeList::iterator i = children->begin(); i != children->end(); i++)
+			element->appendChild((*i)->cloneNode(deep));
+
+		for (dom::NamedNodeMap::iterator i = attributes.begin(); i != attributes.end(); i++)
+			element->setAttributeNode(dynamic_cast<dom::Attr *>((*i)->cloneNode(deep)));
+	}
+
+	return element;
+}
+
+dom::Node * ElementValidator::cloneNode(bool deep)
+{
+	return new ElementValidator(dynamic_cast<dom::Element *>(parent->cloneNode(deep)), schemaElement);
+}
+
+dom::Node * ElementProxy::cloneNode(bool deep)
+{
+	ElementProxy *	temp	= new ElementProxy(dynamic_cast<dom::Element *>(realSubject->cloneNode(deep)), director);
+	temp->realize();
+	return temp;
+}
+
 ElementValidator::ElementValidator(dom::Element * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::ELEMENT_NODE),
-  parent(_parent),
-  validator(xmlValidator)
+  parent(_parent)
 {
 	schemaElement	= *xmlValidator->findSchemaElement(parent->getTagName());
 }
@@ -282,24 +311,4 @@ void Element_Impl::HandleRequest(std::string & event)
 		dynamic_cast<dom::Element *>(getParentNode())->HandleRequest(event);
 	else
 		std::cout << "Reached root of DOM tree without handling event '" << event << "'." << std::endl;
-}
-
-dom::Node* Element_Impl::clone()
-{
-	if (getOwnerDocument() == 0)
-	{
-		return 0;
-	}
-	return cloneWithFactory(getOwnerDocument());
-}
-
-dom::Node* Element_Impl::cloneWithFactory(dom::Document* factory)
-{
-	dom::Element* newElement = factory->createElement(getTagName());
-
-	// Recursively append children clones
-	for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
-	{
-		newElement->appendChild(dynamic_cast<Node_Impl*>((*i))->cloneWithFactory(factory));
-	}
 }

@@ -22,7 +22,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)		= 0;
+		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)		= 0;
 
 		virtual const std::string &	getNodeName(void)				= 0;
 		virtual const std::string &	getNodeValue(void)				= 0;
@@ -41,8 +41,11 @@ namespace dom
 		virtual Node *			appendChild(Node * newChild)			= 0;
 		virtual bool			hasChildNodes(void)				= 0;
 		virtual const std::string &	getLocalName(void)				= 0;
-		
-		virtual Node* clone() = 0;
+
+		//
+		// Prototype clone
+		//
+		virtual Node *			cloneNode(bool deep)				= 0;
 	};
 
 	class DOMException
@@ -89,7 +92,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	{}
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)	{}
 
 	virtual const std::string &	getNodeName(void);
 	virtual const std::string &	getNodeValue(void);
@@ -110,7 +113,8 @@ public:
 	virtual const std::string &	getLocalName(void);
 
 	virtual void setParent(dom::Node * parent);
-	virtual Node* cloneWithFactory(dom::Document* factory) = 0;
+
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 #endif // NODE_H

@@ -17,7 +17,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual const std::string &	getName(void)							= 0;
 		virtual const std::string &	getData(void)							= 0;
@@ -46,7 +46,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace);
 
 	virtual const std::string &	getName(void);
 	virtual const std::string &	getData(void);
@@ -68,10 +68,8 @@ public:
 	virtual Node *			replaceChild(Node * newChild, Node * oldChild)	{ return 0; }
 	virtual Node *			removeChild(Node * oldChild)			{ return 0; }
 	virtual Node *			appendChild(Node * newChild)			{ return 0; }
-	
-	virtual Node * clone();
-protected:
-	virtual dom::Node* cloneWithFactory(dom::Document* factory);
+
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 #endif // TEXT_H

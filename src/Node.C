@@ -178,3 +178,8 @@ dom::Node *		Node_Impl::getSibling(int direction)
 			return *i;
 	}
 }
+
+dom::Node * Node_Impl::cloneNode(bool deep)
+{
+	return 0;
+}

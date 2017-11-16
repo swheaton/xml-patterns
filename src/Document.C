@@ -12,7 +12,7 @@ Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 
 Document_Impl::~Document_Impl() {}
 
-void Document_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Document_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
 {
 	*writer << "<? xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	whitespace->newLine(writer);
@@ -48,10 +48,20 @@ dom::Iterator * Document_Impl::createIterator(dom::Node * node)
 	return new DOMIterator(node, this);
 }
 
+dom::Node * Document_Impl::cloneNode(bool deep)
+{
+	return 0;	// This implementation doesn't have the ability to reparent a cloned tree into a new document.
+			// Therefore it can't usefully support cloning of Document.
+}
+
+dom::Node * DocumentValidator::cloneNode(bool deep)
+{
+	return parent->cloneNode(deep);
+}
+
 DocumentValidator::DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator) :
   Node_Impl("", dom::Node::DOCUMENT_NODE),
-  parent(_parent),
-  validator(xmlValidator)
+  parent(_parent)
 {
 	schemaElement	= *xmlValidator->findSchemaElement("");
 }
@@ -139,15 +149,4 @@ dom::Node * DOMIterator::next()
 
 		return temp;
 	}
-}
-
-dom::Node* Document_Impl::clone()
-{
-	dom::Document* newDocument = new Document_Impl();
-	if (getDocumentElement() != 0)
-	{
-		// Clone document element with the new document as the factory
-		newDocument->appendChild(dynamic_cast<Document_Impl*>(getDocumentElement())->cloneWithFactory(newDocument));
-	}
-	return newDocument;
 }

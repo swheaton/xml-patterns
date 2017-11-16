@@ -1,5 +1,4 @@
 #include "Text.H"
-#include "Document.H"
 #include <stdexcept>
 
 Text_Impl::Text_Impl(const std::string value, dom::Document * document) : Node_Impl("", dom::Node::TEXT_NODE)
@@ -12,7 +11,7 @@ Text_Impl::~Text_Impl()
 {
 }
 
-void Text_Impl::serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+void Text_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
 {
 	whitespace->prettyIndentation(writer);
 	*writer << getData();
@@ -110,16 +109,7 @@ dom::Text *		Text_Impl::splitText(int offset)
 	}
 }
 
-dom::Node* Text_Impl::clone()
+dom::Node * Text_Impl::cloneNode(bool deep)
 {
-	if (getOwnerDocument() == 0)
-	{
-		return 0;
-	}
-	return cloneWithFactory(getOwnerDocument());
-}
-
-dom::Node* Text_Impl::cloneWithFactory(dom::Document* factory)
-{
-	return factory->createTextNode(getData());
+	return new Text_Impl(getValue(), getOwnerDocument());
 }

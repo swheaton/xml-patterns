@@ -2,7 +2,7 @@
 #define DOCUMENT_H
 
 #include <string>
-#include <fstream>
+#include <iostream>
 #include <stack>
 
 #include "Node.H"
@@ -28,7 +28,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)	= 0;
+		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)	= 0;
 
 		virtual Element *	createElement(const std::string & tagName)	= 0;
 		virtual Text *		createTextNode(const std::string & data)	= 0;
@@ -52,7 +52,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace);
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace);
 
 	virtual dom::Element *	createElement(const std::string & tagName);
 	virtual dom::Text *	createTextNode(const std::string & data);
@@ -63,10 +63,8 @@ public:
 	// Iterator Factory
 	//
 	dom::Iterator *		createIterator(dom::Node * node);
-	
-	virtual dom::Node* clone();
 
-	virtual dom::Node* cloneWithFactory(dom::Document* factory) {return clone();}
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 class DOMIterator : public virtual dom::Iterator
@@ -96,14 +94,13 @@ class DocumentValidator : public virtual DocumentDecorator, public virtual Node_
 private:
 	dom::Document *	parent;
 	ValidChildren *	schemaElement;
-	XMLValidator * validator;
 public:
 	DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator);
 
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::fstream * writer, WhitespaceStrategy * whitespace)
+	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
 	  { parent->serialize(writer, whitespace); }
 
 	//
@@ -125,13 +122,8 @@ public:
 	// Iterator Factory
 	//
 	dom::Iterator *		createIterator(dom::Node * node)		{ return parent->createIterator(node); }
-	
-	virtual dom::Node * clone() {return new DocumentValidator(dynamic_cast<dom::Document*>(parent->clone()), validator);}
-protected:
-	virtual dom::Node * cloneWithFactory(dom::Document* factory)
-	{
-		return new DocumentValidator(dynamic_cast<dom::Document*>(parent->clone()), validator);
-	}
+
+	virtual dom::Node *		cloneNode(bool deep);
 };
 
 #endif // DOCUMENT_H
