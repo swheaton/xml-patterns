@@ -3,20 +3,22 @@
 
 #include <string>
 #include "XMLTokenizer.H"
+#include "DirectorState.H"
 
 class Builder;
+class DirectorState;
 
 class Director
 {
 private:
-	enum State
+	
+	DirectorState* state;
+	
+	friend class DirectorState;
+	void changeState(DirectorState* newState)
 	{
-		BEFORE_PROLOG	= 1,
-		AFTER_PROLOG,
-		PARSING_ELEMENT,
-		IN_NONNULL_ELEMENT,
-		END
-	};
+		this->state = newState;
+	}
 public:
 	Director(const std::string & filename, Builder * builder);
 };

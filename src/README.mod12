@@ -1,0 +1,12 @@
+==== State ====
+The state pattern is implemented for the Director by having a DirectorState class
+that has a public parse() function. Every logical state in the Director's parse
+process then has its own subclass inheriting from DirectorState. In the parse()
+functions, the subclasses have a protected changeState() function that takes in
+a Director and changes its state variable. This way, each state has its own
+parsing logic that takes in the next token, uses the Builder to do the correct
+build action, then advances the state. Each state is a Singleton because the states
+can be revisited multiple times and there's no need to keep instantiating them
+every time.
+
+==== Visitor ====
