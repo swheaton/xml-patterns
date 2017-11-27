@@ -145,44 +145,6 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 	return oldAttribute;
 }
 
-void Element_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
-{
-	whitespace->prettyIndentation(writer);
-	*writer << "<" << getTagName();
-
-	int	attrCount	= 0;
-
-	for (dom::NamedNodeMap::iterator i = getAttributes()->begin(); i != getAttributes()->end(); i++)
-	{
-		(*i)->serialize(writer, whitespace);
-		attrCount++;
-	}
-
-	if (attrCount > 0)
-		*writer << " ";
-
-	if (getChildNodes()->size() == 0)
-	{
-		*writer << "/>";
-		whitespace->newLine(writer);
-	}
-	else
-	{
-		*writer << ">";
-		whitespace->newLine(writer);
-		whitespace->incrementIndentation();
-
-		for (dom::NodeList::iterator i = getChildNodes()->begin(); i != getChildNodes()->end(); i++)
-			if (dynamic_cast<dom::Element *>(*i) != 0 || dynamic_cast<dom::Text *>(*i) != 0)
-				(*i)->serialize(writer, whitespace);
-
-		whitespace->decrementIndentation();
-		whitespace->prettyIndentation(writer);
-		*writer << "</" << getTagName() + ">";
-		whitespace->newLine(writer);
-	}
-}
-
 dom::Node * Element_Impl::cloneNode(bool deep)
 {
 	dom::Element *	element	= new Element_Impl(getTagName(), getOwnerDocument());

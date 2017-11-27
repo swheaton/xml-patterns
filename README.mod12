@@ -10,3 +10,12 @@ can be revisited multiple times and there's no need to keep instantiating them
 every time.
 
 ==== Visitor ====
+The serialization algorithm has been implemented with the Visitor pattern by removing
+the serialize() function on the Node classes and replacing it with an accept()
+function that takes a reference to a Visitor class. The SerializeVisitor class
+implements all of the visit() functions as the serialize() functions used to. Some
+implementations of composite and visitor place the composite traversal at the parent
+Visitor class level, but this was too difficult because serialization occurs before,
+after, and sometimes in between serialization of the children. The XMLSerializer
+is the client that creates and passes the SerializeVisitor into the Node for
+serialization.

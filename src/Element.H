@@ -6,6 +6,7 @@
 #include "Node.H"
 #include "NamedNodeMap.H"
 #include "ValidChildren.H"
+#include "Visitor.H"
 
 namespace dom
 {
@@ -26,8 +27,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)		= 0;
-
+		virtual void accept(Visitor& v) = 0;
 		virtual const std::string &	getAttribute(const std::string & name)					= 0;
 		virtual Attr *			getAttributeNode(const std::string & name)				= 0;
 		virtual NodeList *		getElementsByTagName(const std::string & tagName)			= 0;
@@ -62,8 +62,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace);
-
+	virtual void accept(Visitor& v) {v.visitElement(this); }
 	virtual const std::string &	getAttribute(const std::string & name);
 	virtual dom::Attr *		getAttributeNode(const std::string & name);
 	virtual dom::NodeList *		getElementsByTagName(const std::string & tagName);
@@ -111,8 +110,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
-	  { parent->serialize(writer, whitespace); }
+	virtual void accept(Visitor& v) { parent->accept(v); }
 
 	//
 	// Undecorated pass-through methods.
@@ -190,7 +188,7 @@ public:
 	//
 	// Passthrough Element members.
 	//
-	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace) {realSubject->serialize(writer, whitespace);}
+	virtual void accept(Visitor& v) { realSubject->accept(v); }
 
 	virtual dom::Node *		insertBefore(dom::Node * newChild, dom::Node * refChild)
 	  { return realSubject->insertBefore(newChild, refChild); }

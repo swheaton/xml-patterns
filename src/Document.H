@@ -7,6 +7,7 @@
 
 #include "Node.H"
 #include "ValidChildren.H"
+#include "Visitor.H"
 
 namespace dom
 {
@@ -28,8 +29,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)	= 0;
-
+		virtual void accept(Visitor& v) = 0;
 		virtual Element *	createElement(const std::string & tagName)	= 0;
 		virtual Text *		createTextNode(const std::string & data)	= 0;
 		virtual Attr *		createAttribute(const std::string & name)	= 0;
@@ -52,8 +52,8 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace);
-
+	virtual void accept(Visitor& v) {v.visitDocument(this); }
+	
 	virtual dom::Element *	createElement(const std::string & tagName);
 	virtual dom::Text *	createTextNode(const std::string & data);
 	virtual dom::Attr *	createAttribute(const std::string & name);
@@ -100,8 +100,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
-	  { parent->serialize(writer, whitespace); }
+	virtual void accept(Visitor& v) {parent->accept(v); }
 
 	//
 	// Undecorated pass-through methods.

@@ -5,16 +5,20 @@
 #include "Attr.H"
 #include "Text.H"
 
+#include "Visitor.H"
+
 void XMLSerializer::serializePretty(dom::Node * node)
 {
 	WhitespaceStrategy *	ws	= new PrettyWhitespaceStrategy;
-	node->serialize(file, ws);
+	SerializeVisitor visitor(file, ws);
+	node->accept(visitor);
 	delete ws;
 }
 
 void XMLSerializer::serializeMinimal(dom::Node * node)
 {
 	WhitespaceStrategy *	ws	= new MinimalWhitespaceStrategy;
-	node->serialize(file, ws);
+	SerializeVisitor visitor(file, ws);
+	node->accept(visitor);
 	delete ws;
 }

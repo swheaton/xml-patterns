@@ -11,13 +11,6 @@ Text_Impl::~Text_Impl()
 {
 }
 
-void Text_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
-{
-	whitespace->prettyIndentation(writer);
-	*writer << getData();
-	whitespace->newLine(writer);
-}
-
 const std::string &	Text_Impl::getName(void)
 {
 	return getNodeName();

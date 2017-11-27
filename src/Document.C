@@ -12,13 +12,6 @@ Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 
 Document_Impl::~Document_Impl() {}
 
-void Document_Impl::serialize(std::ostream * writer, WhitespaceStrategy * whitespace)
-{
-	*writer << "<? xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	whitespace->newLine(writer);
-	getDocumentElement()->serialize(writer, whitespace);
-}
-
 dom::Element *	Document_Impl::createElement(const std::string & tagName)
 {
 	return new Element_Impl(tagName, this);

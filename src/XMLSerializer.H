@@ -3,6 +3,7 @@
 #include <ios>
 
 #include "Node.H"
+#include "WhitespaceStrategy.H"
 
 //
 // XMLSerializer is Serialization Strategy Context

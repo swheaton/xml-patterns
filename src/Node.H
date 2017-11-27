@@ -3,7 +3,7 @@
 
 #include <string>
 #include "NodeList.H"
-#include "WhitespaceStrategy.H"
+#include "Visitor.H"
 
 namespace dom
 {
@@ -22,7 +22,7 @@ namespace dom
 		//
 		// Serialization Data Extraction Strategy
 		//
-		virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)		= 0;
+		virtual void accept(Visitor& v) = 0;
 
 		virtual const std::string &	getNodeName(void)				= 0;
 		virtual const std::string &	getNodeValue(void)				= 0;
@@ -92,7 +92,7 @@ public:
 	//
 	// Serialization Data Extraction Strategy
 	//
-	virtual void serialize(std::ostream * writer, WhitespaceStrategy * whitespace)	{}
+	virtual void accept(Visitor& v) = 0;
 
 	virtual const std::string &	getNodeName(void);
 	virtual const std::string &	getNodeValue(void);
