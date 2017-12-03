@@ -1,4 +1,4 @@
-OBJS	= Interpreter.o Attr.o Document.o Element.o NamedNodeMap.o Node.o Text.o XMLTokenizer.o XMLSerializer.o XMLValidator.o ValidChildren.o Director.o Builder.o Subject.o Invoker.o
+OBJS	= Facade.o Interpreter.o Attr.o Document.o Element.o NamedNodeMap.o Node.o Text.o XMLTokenizer.o XMLSerializer.o XMLValidator.o ValidChildren.o Director.o Builder.o Subject.o Invoker.o
 CPPFLAGS= -Iregexpp3/ -g
 
 all: Test

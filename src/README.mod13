@@ -11,3 +11,14 @@ tree corresponding to the xml inside the file. Then we can call evaluate() on th
 tree and get the result.
 
 ==== Facade ====
+The Facade in this implementation simplifies some of the operations of the DOM
+XML subsystems. It provides several static functions that would be commonly-used
+operations on an XML library. By doing so, the DomFacade gives the user a reasonable
+API to work with, instead of needing to know things like in order to parse a file
+you have to create a Builder and pass that into the Director. Other functions include
+serializing a Node, finding the first node with a given name, and evaluating an
+arithmetic xml file from the Interpreter section. I thought making all the functions
+static made sense as an outside being wrapping up functionality of the DOM classes.
+Of course the Facade does not provide all the functionality a user might desire,
+so over time one would continue to develop this class to contain more convenience
+functions.
