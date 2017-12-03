@@ -4,6 +4,7 @@
 #include <string>
 #include "NodeList.H"
 #include "WhitespaceStrategy.H"
+#include "NodeFlyweight.H"
 
 class Visitor;
 
@@ -74,8 +75,7 @@ namespace dom
 class Node_Impl : public virtual dom::Node
 {
 private:
-	std::string	name;
-	std::string	value;
+	NodeFlyweight* sharedNameValue;
 	short		nodeType;
 	dom::Node *	parent;
 	dom::NodeList	nodes;

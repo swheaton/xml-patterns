@@ -1,5 +1,11 @@
 ==== Flyweight ====
-
+The intrinsic state of a Node is its name and value. The extrinsic state is everything
+else like its children and parent. Instead of creating a Context class and moving
+all of the children management logic over there, I made a class NodeFlyweight that
+contains the name and the value, which Node stores a pointer to. NodeFlyweightFactory
+uses a hash set to keep around one copy of each name/value pair. When the constructor
+or setValue() is called on the Node, we make a call to the flyweight factory to get
+a pointer to the shared object.
 
 ==== Interpreter ====
 The Interpreter pattern is implemented in Interpreter.H and .C by having the
