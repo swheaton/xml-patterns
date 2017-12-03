@@ -12,6 +12,7 @@
 #include "Builder.H"
 #include "Director.H"
 #include "Invoker.H"
+#include "Interpreter.H"
 
 void testTokenizer(int argc, char** argv);
 void testSerializer(int argc, char** argv);
@@ -21,6 +22,7 @@ void testDirector(int argc, char** argv);
 void testEvent(int argc, char** argv);
 void testCommand(int argc, char** argv);
 void testPrototype(int argc, char** argv);
+void testInterpreter(int argc, char** argv);
 
 void printUsage(void)
 {
@@ -33,6 +35,7 @@ void printUsage(void)
 	printf("\tTest e [file]\n");
 	printf("\tTest c\n");
 	printf("\tTest p [file]\n");
+	printf("\tTest n [file]\n");
 }
 
 int main(int argc, char** argv)
@@ -77,7 +80,21 @@ int main(int argc, char** argv)
 	case 'p':
 		testPrototype(argc, argv);
 		break;
+	case 'n':
+	case 'N':
+		testInterpreter(argc, argv);
 	}
+}
+
+void testInterpreter(int argc, char** argv)
+{
+	if (argc < 3)
+	{
+		printUsage();
+		exit(0);
+	}
+	ArithmeticInterpreter interpreter(argv[2]);
+	printf("Result: %lf\n", interpreter.evaluate());
 }
 
 void testTokenizer(int argc, char** argv)

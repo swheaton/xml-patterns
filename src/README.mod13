@@ -1,0 +1,13 @@
+==== Flyweight ====
+
+
+==== Interpreter ====
+The Interpreter pattern is implemented in Interpreter.H and .C by having the
+abstract expression class ArithmeticExpression. There are three types of expressions
+extending that class: Literal, UnaryOperation,and BinaryOperation. The latter two
+call evaluate() on their constituents then evaluate their operation on the results.
+ArithmeticInterpreter uses the Director to parse a file, interpret, and build the expression
+tree corresponding to the xml inside the file. Then we can call evaluate() on the
+tree and get the result.
+
+==== Facade ====

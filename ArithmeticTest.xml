@@ -1,0 +1,10 @@
+<? xml version="1.0" encoding="UTF-8"?>
+<operation type="-">
+          <operation type="+">
+                    <value>2</value>
+                    <operation type="*">
+                        <value>1.5</value>
+                        <value>2</value>
+                    </operation>
+          </operation>
+</operation>
