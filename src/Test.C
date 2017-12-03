@@ -171,10 +171,11 @@ void testSerializer(int argc, char** argv)
 	//
 	std::fstream *	file	= 0;
 	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
-	xmlSerializer.serializePretty(document);
+	document->Accept(&xmlSerializer);
 	delete file;
 	XMLSerializer	xmlSerializer2(file = new std::fstream(argv[3], std::ios_base::out));
-	xmlSerializer2.serializeMinimal(document);
+	xmlSerializer2.serializeMinimal();
+	document->Accept(&xmlSerializer2);
 	delete file;
 
 	// delete Document and tree.
@@ -248,7 +249,7 @@ void testValidator(int argc, char** argv)
 	//
 	std::fstream *	file	= 0;
 	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
-	xmlSerializer.serializePretty(document);
+	document->Accept(&xmlSerializer);
 	delete file;
 
 	// delete Document and tree.
@@ -331,7 +332,7 @@ void testDirector(int argc, char** argv)
 	Director	director(argv[2], &builder);
 	std::fstream	file(argv[3], std::ios_base::out);
 	XMLSerializer	xmlSerializer(&file);
-	xmlSerializer.serializePretty(document);
+	document->Accept(&xmlSerializer);
 }
 
 void testEvent(int argc, char** argv)
@@ -458,7 +459,7 @@ void testPrototype(int argc, char** argv)
 	//
 	std::fstream *	file	= 0;
 	XMLSerializer	xmlSerializer(file = new std::fstream(argv[2], std::ios_base::out));
-	xmlSerializer.serializePretty(document->getDocumentElement()->cloneNode(true));
+	document->getDocumentElement()->cloneNode(true)->Accept(&xmlSerializer);
 	delete file;
 
 	// delete Document and tree.

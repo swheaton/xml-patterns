@@ -1,45 +1,21 @@
 #ifndef VISITOR_H
 #define VISITOR_H
 
-#include <iostream>
-#include <ios>
-//#include "Attr.H"
-//#include "Element.H"
-//#include "Text.H"
-//#include "Document.H"
-
-namespace dom {
-    class Attr;
-    class Element;
-    class Text;
-    class Document;
-}
-class WhitespaceStrategy;
+namespace dom
+{
+	class Document;
+	class Element;
+	class Attr;
+	class Text;
+};
 
 class Visitor
 {
 public:
-    Visitor() {}
-
-    virtual void visitAttr(dom::Attr*) = 0;
-    virtual void visitDocument(dom::Document*) = 0;
-    virtual void visitElement(dom::Element*) = 0;
-    virtual void visitText(dom::Text*) = 0;
-};
-
-class SerializeVisitor : public virtual Visitor
-{
-public:
-    SerializeVisitor(std::ostream* _writer, WhitespaceStrategy* _whitespace) :
-        writer(_writer),
-        whitespace(_whitespace) {}
-    virtual void visitAttr(dom::Attr* attr);
-    virtual void visitDocument(dom::Document* doc);
-    virtual void visitElement(dom::Element* elt);
-    virtual void visitText(dom::Text* t);
-private:
-    std::ostream * writer;
-    WhitespaceStrategy * whitespace;
+	virtual void VisitDocument(dom::Document * document) = 0;
+	virtual void VisitElement(dom::Element * element) = 0;
+	virtual void VisitAttribute(dom::Attr * attr) = 0;
+	virtual void VisitText(dom::Text * text) = 0;
 };
 
 #endif // VISITOR_H

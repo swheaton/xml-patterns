@@ -4,6 +4,7 @@
 #include "Attr.H"
 #include "NodeList.H"
 #include "XMLValidator.H"
+#include "Visitor.H"
 
 Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 {
@@ -11,6 +12,11 @@ Document_Impl::Document_Impl(void) : Node_Impl("", dom::Node::DOCUMENT_NODE)
 }
 
 Document_Impl::~Document_Impl() {}
+
+void Document_Impl::Accept(Visitor * visitor)
+{
+	visitor->VisitDocument(this);
+}
 
 dom::Element *	Document_Impl::createElement(const std::string & tagName)
 {

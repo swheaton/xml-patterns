@@ -4,7 +4,8 @@
 #include <string>
 
 #include "Node.H"
-#include "Visitor.H"
+
+class Visitor;
 
 namespace dom
 {
@@ -15,10 +16,7 @@ namespace dom
 	public:
 		virtual ~Text()	{}
 
-		//
-		// Serialization Data Extraction Strategy
-		//
-		virtual void accept(Visitor& v) = 0;
+		virtual void Accept(Visitor * visitor)	= 0;
 
 		virtual const std::string &	getName(void)							= 0;
 		virtual const std::string &	getData(void)							= 0;
@@ -44,10 +42,7 @@ public:
 
 	virtual ~Text_Impl();
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) {v.visitText(this); }
+	virtual void Accept(Visitor * visitor);
 
 	virtual const std::string &	getName(void);
 	virtual const std::string &	getData(void);

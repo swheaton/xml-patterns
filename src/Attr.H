@@ -5,7 +5,8 @@
 #include <iostream>
 
 #include "Node.H"
-#include "Visitor.H"
+
+class Visitor;
 
 namespace dom
 {
@@ -17,10 +18,7 @@ namespace dom
 	public:
 		virtual ~Attr() {}
 
-		//
-		// Serialization Data Extraction Strategy
-		//
-		virtual void accept(Visitor& v) = 0;
+		virtual void Accept(Visitor * visitor)	= 0;
 
 		virtual const std::string &	getName(void)				= 0;
 		virtual const std::string &	getValue(void)				= 0;
@@ -40,10 +38,7 @@ public:
 
 	virtual ~Attr_Impl();
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) {v.visitAttr(static_cast<dom::Attr*>(this)); }
+	virtual void Accept(Visitor * visitor);
 
 	virtual const std::string &	getName(void);
 	virtual const std::string &	getValue(void);

@@ -98,12 +98,12 @@ void WriteCommand::Execute(const std::string & arg)
 
 	std::fstream	file(arg.c_str(), std::ios_base::out);
 	XMLSerializer	xmlSerializer(&file);
-	xmlSerializer.serializePretty(state->getDocument());
+	state->getDocument()->Accept(&xmlSerializer);
 }
 
 void PrintCommand::Execute(const std::string & arg)
 {
 	XMLSerializer	xmlSerializer(&std::cout);
-	xmlSerializer.serializePretty(state->getDocument());
+	state->getDocument()->Accept(&xmlSerializer);
 	std::cout.flush();
 }

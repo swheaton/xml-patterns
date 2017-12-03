@@ -6,7 +6,8 @@
 #include "Node.H"
 #include "NamedNodeMap.H"
 #include "ValidChildren.H"
-#include "Visitor.H"
+
+class Visitor;
 
 namespace dom
 {
@@ -24,10 +25,8 @@ namespace dom
 		//
 		virtual void			HandleRequest(std::string & event)					= 0;
 
-		//
-		// Serialization Data Extraction Strategy
-		//
-		virtual void accept(Visitor& v) = 0;
+		virtual void Accept(Visitor * visitor)	= 0;
+
 		virtual const std::string &	getAttribute(const std::string & name)					= 0;
 		virtual Attr *			getAttributeNode(const std::string & name)				= 0;
 		virtual NodeList *		getElementsByTagName(const std::string & tagName)			= 0;
@@ -59,10 +58,8 @@ public:
 	//
 	virtual void			HandleRequest(std::string & event);
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) {v.visitElement(this); }
+	virtual void Accept(Visitor * visitor);
+
 	virtual const std::string &	getAttribute(const std::string & name);
 	virtual dom::Attr *		getAttributeNode(const std::string & name);
 	virtual dom::NodeList *		getElementsByTagName(const std::string & tagName);
@@ -107,10 +104,7 @@ public:
 	//
 	virtual void			HandleRequest(std::string & event)		{ parent->HandleRequest(event); }
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) { parent->accept(v); }
+	virtual void Accept(Visitor * visitor)	{ parent->Accept(visitor); }
 
 	//
 	// Undecorated pass-through methods.
@@ -185,10 +179,7 @@ public:
 	virtual dom::Node *		getLastChild(void);
 	virtual bool			hasChildNodes(void);
 
-	//
-	// Passthrough Element members.
-	//
-	virtual void accept(Visitor& v) { realSubject->accept(v); }
+	virtual void Accept(Visitor * visitor)	{ realSubject->Accept(visitor); }
 
 	virtual dom::Node *		insertBefore(dom::Node * newChild, dom::Node * refChild)
 	  { return realSubject->insertBefore(newChild, refChild); }

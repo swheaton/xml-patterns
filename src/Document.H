@@ -7,7 +7,8 @@
 
 #include "Node.H"
 #include "ValidChildren.H"
-#include "Visitor.H"
+
+class Visitor;
 
 namespace dom
 {
@@ -26,10 +27,8 @@ namespace dom
 	class Document : public virtual Node
 	{
 	public:
-		//
-		// Serialization Data Extraction Strategy
-		//
-		virtual void accept(Visitor& v) = 0;
+		virtual void Accept(Visitor * visitor)	= 0;
+
 		virtual Element *	createElement(const std::string & tagName)	= 0;
 		virtual Text *		createTextNode(const std::string & data)	= 0;
 		virtual Attr *		createAttribute(const std::string & name)	= 0;
@@ -49,11 +48,8 @@ public:
 
 	virtual ~Document_Impl();
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) {v.visitDocument(this); }
-	
+	virtual void Accept(Visitor * visitor);
+
 	virtual dom::Element *	createElement(const std::string & tagName);
 	virtual dom::Text *	createTextNode(const std::string & data);
 	virtual dom::Attr *	createAttribute(const std::string & name);
@@ -97,10 +93,7 @@ private:
 public:
 	DocumentValidator(dom::Document * _parent, XMLValidator * xmlValidator);
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) {parent->accept(v); }
+	virtual void Accept(Visitor * visitor)	{ parent->Accept(visitor); }
 
 	//
 	// Undecorated pass-through methods.

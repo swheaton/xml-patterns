@@ -3,7 +3,7 @@
 #include <ios>
 
 #include "Node.H"
-#include "WhitespaceStrategy.H"
+#include "Visitor.H"
 
 //
 // XMLSerializer is Serialization Strategy Context
@@ -12,14 +12,12 @@
 // java.io.Writer is output stream Strategy
 // java.io.BufferedWriter is output stream Concrete Strategy
 //
-class XMLSerializer
+class XMLSerializer : public Visitor
 {
 private:
 	std::ostream *		file;
-public:
-	XMLSerializer(std::ostream * _file) : file(_file)	{}
-	~XMLSerializer() {}
-private:
+	WhitespaceStrategy *	whitespace;
+
 	class PrettyWhitespaceStrategy : public WhitespaceStrategy
 	{
 	private:
@@ -46,10 +44,18 @@ private:
 		virtual void decrementIndentation(void)			{}
 		virtual void newLine(std::ostream * wwriter)		{}
 	};
+
+	virtual void VisitDocument(dom::Document * document);
+	virtual void VisitElement(dom::Element * element);
+	virtual void VisitAttribute(dom::Attr * attr);
+	virtual void VisitText(dom::Text * text);
 public:
+	XMLSerializer(std::ostream * _file) : file(_file), whitespace(new PrettyWhitespaceStrategy)	{}
+	~XMLSerializer() {}
+
 	//
 	// Strategized serialization
 	//
-	virtual void		serializePretty(dom::Node * node);
-	virtual void		serializeMinimal(dom::Node * node);
+	virtual void		serializePretty(void);
+	virtual void		serializeMinimal(void);
 };

@@ -3,6 +3,7 @@
 #include "Text.H"
 #include "Document.H"
 #include "XMLValidator.H"
+#include "Visitor.H"
 
 #include <iostream>
 #include <ios>
@@ -143,6 +144,11 @@ dom::Attr *		Element_Impl::setAttributeNode(dom::Attr * newAttr)
 	dynamic_cast<Node_Impl *>(dynamic_cast<Node *>(newAttr))->setParent(this);
 	attributes.push_back(newAttr);
 	return oldAttribute;
+}
+
+void Element_Impl::Accept(Visitor * visitor)
+{
+	visitor->VisitElement(this);
 }
 
 dom::Node * Element_Impl::cloneNode(bool deep)

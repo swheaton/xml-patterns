@@ -3,7 +3,9 @@
 
 #include <string>
 #include "NodeList.H"
-#include "Visitor.H"
+#include "WhitespaceStrategy.H"
+
+class Visitor;
 
 namespace dom
 {
@@ -19,10 +21,7 @@ namespace dom
 
 		virtual ~Node() {}
 
-		//
-		// Serialization Data Extraction Strategy
-		//
-		virtual void accept(Visitor& v) = 0;
+		virtual void Accept(Visitor * visitor)	= 0;
 
 		virtual const std::string &	getNodeName(void)				= 0;
 		virtual const std::string &	getNodeValue(void)				= 0;
@@ -89,10 +88,7 @@ protected:
 public:
 	virtual ~Node_Impl();
 
-	//
-	// Serialization Data Extraction Strategy
-	//
-	virtual void accept(Visitor& v) = 0;
+	virtual void Accept(Visitor * visitor)	{}
 
 	virtual const std::string &	getNodeName(void);
 	virtual const std::string &	getNodeValue(void);
